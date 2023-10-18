@@ -1,0 +1,22 @@
+{
+	"name": "oc-les-petits-plats",
+	"version": "1.0.0",
+	"description": "",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview"
+	},
+  "repository": {
+		"type": "git",
+		"url": "git+https://github.com/boysers/oc-les-petits-plats.git"
+	},
+	"author": "boysers",
+	"license": "ISC",
+	"devDependencies": {
+		"eslint": "^8.51.0",
+		"sass": "^1.69.4",
+		"vite": "^4.4.11"
+	}
+}
