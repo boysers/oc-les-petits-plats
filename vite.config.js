@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import { resolve } from "node:path";
 
-const PUBLIC_GITHUB_PAGES_URL = "https://toto.github.io/oc-les-petits-plats";
+const PUBLIC_GITHUB_PAGES_URL = "https://boysers.github.io/oc-les-petits-plats";
 const isProductionNode = process.env.NODE_ENV === "production";
 
 const base = isProductionNode ? PUBLIC_GITHUB_PAGES_URL : "/";
