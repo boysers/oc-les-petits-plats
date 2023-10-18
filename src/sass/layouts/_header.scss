@@ -1,0 +1,40 @@
+.header {
+	background: linear-gradient(
+			0deg,
+			rgba(0, 0, 0, 0.3) 0%,
+			rgba(0, 0, 0, 0.3) 100%
+		),
+		url("/images/lampos-aritonang.jpg"), lightgray 50% / cover no-repeat;
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: right 0% center;
+
+	&__logo {
+		width: 207px;
+		height: auto;
+		display: block;
+	}
+
+	&__navbar {
+		height: 126px;
+		display: flex;
+		align-items: center;
+		margin: auto 64px;
+	}
+
+	&__herobanner {
+		max-width: 954px;
+		min-height: 375px;
+		width: 100%;
+		margin: auto;
+		padding: 0 16px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-direction: column;
+
+		&__title-wrapper {
+			max-width: 700px;
+		}
+	}
+}
