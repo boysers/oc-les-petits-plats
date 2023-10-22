@@ -1,0 +1,61 @@
+.recipe-card {
+	min-width: 200px;
+
+	border-radius: 21px;
+	background: #fff;
+	box-shadow: 0px 4px 34px 30px rgba(0, 0, 0, 0.04);
+
+	overflow: hidden;
+
+	position: relative;
+
+	&--hidden {
+		display: none;
+	}
+
+	&::after {
+		content: attr(data-time);
+		position: absolute;
+		top: 0;
+		right: 0;
+		font-size: 12px;
+		color: $primary-text-color;
+		margin: 20px;
+		border-radius: 14px;
+		background: $primary-color;
+		padding: 7px 14px;
+	}
+
+	&__info-wrapper {
+		padding: 25px 32px;
+		padding-bottom: 61px;
+	}
+
+	&__ingredients-wrapper {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		row-gap: 21px;
+		column-gap: 6px;
+
+		.subtitle1 {
+			margin-bottom: 2px;
+		}
+	}
+
+	&__image {
+		height: 253px;
+	}
+
+	&__title {
+		margin-bottom: 29px;
+	}
+
+	&__subtitle1 {
+		margin-bottom: 15px;
+	}
+
+	&__subtitle2 {
+		margin-top: 32px;
+		margin-bottom: 15px;
+	}
+}
