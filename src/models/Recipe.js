@@ -1,7 +1,6 @@
 "use strict";
 
 import { Adapter } from "../adapter";
-import { BASE_URL } from "../constants";
 import { Ingredient } from "./Ingredient";
 
 /**
@@ -54,7 +53,10 @@ export class Recipe {
 	}
 
 	get image() {
-		return `${BASE_URL}recipe-photos/${this._image}`;
+		return new URL(
+			`${import.meta.env.BASE_URL}recipe-photos/${this._image}`,
+			document.location
+		).href;
 	}
 
 	get name() {
