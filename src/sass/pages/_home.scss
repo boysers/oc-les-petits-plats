@@ -1,4 +1,15 @@
 .home {
+	max-width: 1440px;
+	margin: auto;
+
 	padding: 24px 100px;
 	padding-bottom: 170px;
+
+	.recipes-wrapper {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+
+		column-gap: 48px;
+		row-gap: 66px;
+	}
 }

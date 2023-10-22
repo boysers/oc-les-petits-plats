@@ -1,0 +1,11 @@
+.filter-form {
+	max-width: 1440px;
+	margin: auto;
+	padding: 24px 100px;
+
+	&__wrapper {
+		display: flex;
+		gap: 66px;
+		align-items: baseline;
+	}
+}

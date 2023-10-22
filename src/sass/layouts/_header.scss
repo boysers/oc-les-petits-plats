@@ -9,31 +9,32 @@
 	background-repeat: no-repeat;
 	background-position: right 0% center;
 
-	&__logo {
-		width: 207px;
-		height: auto;
-		display: block;
-	}
-
 	&__navbar {
 		height: 126px;
 		display: flex;
 		align-items: center;
 		margin: auto 64px;
+
+		&__logo {
+			width: 207px;
+			height: auto;
+			display: block;
+		}
 	}
 
 	&__herobanner {
 		max-width: 954px;
-		min-height: 375px;
+		min-height: calc(60vh - 126px);
 		width: 100%;
 		margin: auto;
-		padding: 0 16px;
+		padding: 50px 16px;
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		flex-direction: column;
+		gap: 32px;
 
-		&__title-wrapper {
+		&__title {
 			max-width: 700px;
 		}
 	}
