@@ -1,5 +1,6 @@
 "use strict";
 
+import { foreachArrayObject } from "../utils/foreach";
 import { instantiateObjectsArrayObject } from "../utils/instantiateObjects";
 import { updateObjectArrayObject } from "../utils/updateObject";
 
@@ -22,5 +23,15 @@ export class Adapter {
 	 */
 	updateObject(target, source) {
 		updateObjectArrayObject(target, source);
+	}
+
+	/**
+	 * @template T
+	 * @param {Array<T>} array
+	 * @param {(item: T, index: number, array: Array<T>) => void} callback
+	 * @returns {void}
+	 */
+	foreach(array, callback) {
+		foreachArrayObject(array, callback);
 	}
 }

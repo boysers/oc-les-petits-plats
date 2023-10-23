@@ -7,7 +7,14 @@
  * @returns {T}
  */
 export function instantiateObjectsNativeLoop(objects, constructor) {
-	return objects.map((object) => new constructor(object));
+	/** @type {T[]} */
+	const objectInstances = [];
+
+	for (let object of objects) {
+		objectInstances.push(new constructor(object));
+	}
+
+	return objectInstances;
 }
 
 /**
@@ -17,12 +24,5 @@ export function instantiateObjectsNativeLoop(objects, constructor) {
  * @returns {T[]}
  */
 export function instantiateObjectsArrayObject(objects, constructor) {
-	/** @type {T[]} */
-	const objectInstances = [];
-
-	for (let object of objects) {
-		objectInstances.push(new constructor(object));
-	}
-
-	return objectInstances;
+	return objects.map((object) => new constructor(object));
 }

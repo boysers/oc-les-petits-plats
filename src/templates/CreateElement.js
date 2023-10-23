@@ -4,30 +4,18 @@ import { Adapter } from "../adapter";
 import { createElement } from "../utils/createElement";
 
 export class CreateElement {
-	/** @param {keyof HTMLElementTagNameMap} tagname */
-	constructor(tagname) {
-		this._tagname = tagname;
+	constructor() {
+		/** @type {string | undefined} */
+		this._id;
 
 		/** @type {Array<string>} */
 		this._classes = [];
 
-		/** @type {Array<string | number | Node | Node[]>} */
-		this._children = [];
-
 		/** @type {Record<string, string>} */
 		this._attributes = {};
 
-		/** @type {string | undefined} */
-		this._id;
-	}
-
-	/**
-	 * @param {Array<string>} classes
-	 * @returns {this}
-	 */
-	addClasses(...classes) {
-		this._classes.push(...classes);
-		return this;
+		/** @type {Array<string | number | Node | Node[]>} */
+		this._children = [];
 	}
 
 	/**
@@ -36,6 +24,15 @@ export class CreateElement {
 	 */
 	addId(id) {
 		this._id = id;
+		return this;
+	}
+
+	/**
+	 * @param {Array<string>} classes
+	 * @returns {this}
+	 */
+	addClasses(...classes) {
+		this._classes.push(...classes);
 		return this;
 	}
 
@@ -58,9 +55,14 @@ export class CreateElement {
 		return this;
 	}
 
-	create() {
+	/**
+	 * @template {keyof HTMLElementTagNameMap} K
+	 * @param {K} tagname
+	 * @returns {HTMLElementTagNameMap[K]}
+	 */
+	create(tagname) {
 		const element = createElement(
-			this._tagname,
+			tagname,
 			{
 				id: this._id,
 				classes: this._classes,

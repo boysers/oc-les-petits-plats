@@ -9,9 +9,9 @@
 export function updateObjectArrayObject(target, source) {
 	if (!isTargetAndSourceObject(target, source)) return;
 
-	for (let [key, value] of Object.entries(source)) {
+	Object.entries(source).forEach(([key, value]) => {
 		target[key] = value;
-	}
+	});
 }
 
 /**
@@ -23,9 +23,9 @@ export function updateObjectArrayObject(target, source) {
 export function updateObjectNativeLoop(target, source) {
 	if (!isTargetAndSourceObject(target, source)) return;
 
-	Object.entries(source).forEach(([key, value]) => {
+	for (let [key, value] of Object.entries(source)) {
 		target[key] = value;
-	});
+	}
 }
 
 /**
