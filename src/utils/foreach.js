@@ -1,5 +1,7 @@
 "use strict";
 
+import { isArrayAndCallback } from "./isTypes";
+
 /**
  * @template T
  * @param {Array<T>} array
@@ -24,31 +26,4 @@ export function foreachNativeLoop(array, callback) {
 	for (let index = 0; index < array.length; index++) {
 		callback(array[index], index, array);
 	}
-}
-
-/**
- * @template T
- * @param {Array<T>} array
- * @param {Function} callback
- * @returns {boolean}
- */
-function isArrayAndCallback(array, callback) {
-	return isArray(array) && isCallback(callback);
-}
-
-/**
- * @param {Function} callback
- * @returns {boolean}
- */
-function isCallback(callback) {
-	return callback instanceof Function;
-}
-
-/**
- * @template T
- * @param {Array<T>} array
- * @returns {boolean}
- */
-function isArray(array) {
-	return Array.isArray(array);
 }
