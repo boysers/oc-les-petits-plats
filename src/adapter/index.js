@@ -2,6 +2,8 @@
 
 import { foreachArrayObject } from "../utils/foreach";
 import { instantiateObjectsArrayObject } from "../utils/instantiateObjects";
+import { mapArrayObject } from "../utils/mapArray";
+import { someInArrayArrayObject } from "../utils/someInArray";
 import { updateObjectArrayObject } from "../utils/updateObject";
 
 export class Adapter {
@@ -33,5 +35,25 @@ export class Adapter {
 	 */
 	foreach(array, callback) {
 		foreachArrayObject(array, callback);
+	}
+
+	/**
+	 * @template T
+	 * @param {Array<T>} array
+	 * @param {(item: T, index: number, array: Array<T>) => void} conditionCallback
+	 * @returns {boolean}
+	 */
+	someInArray(array, conditionCallback) {
+		return someInArrayArrayObject(array, conditionCallback);
+	}
+
+	/**
+	 * @template T, U
+	 * @param {Array<T>} array
+	 * @param {(item: T, index: number, array: Array<T>) => N} callback
+	 * @returns {Array<U>}
+	 */
+	mapArray(array, callback) {
+		return mapArrayObject(array, callback);
 	}
 }
