@@ -11,9 +11,11 @@
 
 /**
  * Creates an instance of the element for the specified tag.
- * @param {keyof HTMLElementTagNameMap} tagname
+ * @template {keyof HTMLElementTagNameMap} K
+ * @param {K} tagname
  * @param {Props} [props]
  * @param {Children} [children]
+ * @returns {HTMLElementTagNameMap[K]}
  */
 export function createElement(tagname, props = {}, ...children) {
 	const element = document.createElement(tagname);

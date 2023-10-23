@@ -16,28 +16,26 @@ export class RecipeCard {
 	 * @returns {HTMLDivElement}
 	 */
 	_createIngredientsWrapper(ingredients) {
-		return new CreateElement("div")
+		return new CreateElement()
 			.addChildren(
 				ingredients.map(({ ingredient, quantity, unit }) => {
-					const wrapper = new CreateElement("div");
-
-					const ingredientElement = new CreateElement("p")
+					const ingredientElement = new CreateElement()
 						.addClasses("subtitle1")
 						.addChildren(ingredient)
-						.create();
+						.create("p");
 
-					const quantityElement = new CreateElement("p")
+					const quantityElement = new CreateElement()
 						.addClasses("subtitle2")
 						.addChildren(`${quantity ?? ""} ${unit ?? ""}`.trim())
-						.create();
+						.create("p");
 
-					return wrapper
+					return new CreateElement()
 						.addChildren(ingredientElement, quantityElement)
-						.create();
+						.create("div");
 				})
 			)
 			.addClasses("recipe-card__ingredients-wrapper")
-			.create();
+			.create("div");
 	}
 
 	/**
@@ -52,38 +50,36 @@ export class RecipeCard {
 	}
 
 	create() {
-		const card = new CreateElement("article");
-
 		const { image, name, description, ingredients, time } = this._recipe;
 
-		const imgEl = new CreateElement("img")
+		const imgEl = new CreateElement()
 			.addAttributes({ src: image, alt: name })
 			.addClasses("recipe-card__image")
-			.create();
+			.create("img");
 
-		const nameEl = new CreateElement("h3")
+		const nameEl = new CreateElement()
 			.addChildren(name)
 			.addClasses("recipe-card__title")
-			.create();
+			.create("h3");
 
-		const titleRecetteEl = new CreateElement("h4")
+		const titleRecetteEl = new CreateElement()
 			.addChildren("Recette")
 			.addClasses("recipe-card__subtitle1")
-			.create();
+			.create("h4");
 
-		const descriptionEl = new CreateElement("p")
+		const descriptionEl = new CreateElement()
 			.addChildren(description)
 			.addClasses("recipe-card__description")
-			.create();
+			.create("p");
 
-		const titleIngredientsEl = new CreateElement("h4")
+		const titleIngredientsEl = new CreateElement()
 			.addChildren("Ingrédients")
 			.addClasses("recipe-card__subtitle2")
-			.create();
+			.create("h4");
 
 		const ingredientsWrapper = this._createIngredientsWrapper(ingredients);
 
-		const cardInfoEl = new CreateElement("div")
+		const cardInfoEl = new CreateElement()
 			.addClasses("recipe-card__info-wrapper")
 			.addChildren(
 				nameEl,
@@ -92,13 +88,13 @@ export class RecipeCard {
 				titleIngredientsEl,
 				ingredientsWrapper
 			)
-			.create();
+			.create("div");
 
-		this._card = card
+		this._card = new CreateElement()
 			.addClasses("recipe-card", "recipe-card-wrapper")
 			.addAttributes({ "data-time": time, "aria-hidden": "false" })
 			.addChildren(imgEl, cardInfoEl)
-			.create();
+			.create("article");
 
 		return this._card;
 	}
