@@ -1,5 +1,6 @@
 "use strict";
 
+import { capitalizeFirstLetter } from "../utils/capitalizeFirstLetter";
 import { CreateElement } from "./CreateElement";
 
 export class RecipeCard {
@@ -21,7 +22,7 @@ export class RecipeCard {
 				ingredients.map(({ ingredient, quantity, unit }) => {
 					const ingredientElement = new CreateElement()
 						.addClasses("subtitle1")
-						.addChildren(ingredient)
+						.addChildren(capitalizeFirstLetter(ingredient))
 						.create("p");
 
 					const quantityElement = new CreateElement()

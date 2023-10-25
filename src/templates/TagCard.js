@@ -1,5 +1,6 @@
 "use strict";
 
+import { capitalizeFirstLetter } from "../utils/capitalizeFirstLetter";
 import { CreateElement } from "./CreateElement";
 
 export class TagCard {
@@ -29,7 +30,7 @@ export class TagCard {
 	/** @returns {HTMLElement} */
 	create() {
 		this._tagCard = new CreateElement()
-			.addChildren(this._tagname)
+			.addChildren(capitalizeFirstLetter(this._tagname))
 			.create("p");
 
 		return this._tagCard;

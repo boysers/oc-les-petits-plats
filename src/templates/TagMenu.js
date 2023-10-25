@@ -1,6 +1,7 @@
 "use strict";
 
 import { Adapter } from "../adapter";
+import { capitalizeFirstLetter } from "../utils/capitalizeFirstLetter";
 import { cleanAndNormalizeString } from "../utils/normalizeString";
 import { CreateElement } from "./CreateElement";
 import { SearchBar } from "./SearchBar";
@@ -263,14 +264,14 @@ export class TagMenu {
 				.create("i");
 
 			const tagActive = new CreateElement()
-				.addChildren(tagname, closeEl)
+				.addChildren(capitalizeFirstLetter(tagname), closeEl)
 				.addClasses("active-tag")
 				.create("p");
 
 			// ----------------------------
 
 			const labelName = new CreateElement()
-				.addChildren(tagname)
+				.addChildren(capitalizeFirstLetter(tagname))
 				.addClasses("active-card__name")
 				.create("p");
 
