@@ -18,6 +18,9 @@ export class SearchBar {
 			submit: [],
 			click: [],
 		};
+
+		/** @type {string | undefined} */
+		this._placeholder;
 	}
 
 	/**
@@ -63,10 +66,21 @@ export class SearchBar {
 		this._listeners[type].push(callback);
 	}
 
+	/** @param {string} */
+	set placeholder(value) {
+		this._placeholder = value;
+	}
+
+	get placeholder() {
+		return this._placeholder;
+	}
+
 	create() {
 		const input = new CreateElement()
 			.addClasses("search-bar__input")
 			.create("input");
+
+		if (this._placeholder) input.placeholder = this._placeholder;
 
 		const icon = new CreateElement()
 			.addClasses("fa-solid", "fa-magnifying-glass")

@@ -140,9 +140,10 @@ export class SearchRecipeForm {
 	}
 
 	_initSearchBar() {
-		const headerSearchBar = new SearchBar();
+		const searchBar = new SearchBar();
+		searchBar.placeholder = "Rechercher une recette, un ingrédient, ...";
 
-		headerSearchBar.addEventListener("input", (e) => {
+		searchBar.addEventListener("input", (e) => {
 			const isTarget = e.target instanceof HTMLInputElement;
 			if (!isTarget) return;
 
@@ -155,7 +156,7 @@ export class SearchRecipeForm {
 
 		document
 			.querySelector(".header__herobanner__search-bar-wrapper")
-			.appendChild(headerSearchBar.create());
+			.appendChild(searchBar.create());
 	}
 
 	/**

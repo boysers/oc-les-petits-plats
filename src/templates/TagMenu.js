@@ -108,7 +108,7 @@ export class TagMenu {
 
 	_createSearchBar() {
 		const searchBar = new SearchBar();
-		searchBar.placeholder = "Rechercher une recette, un ingrédient, ...";
+
 		searchBar.addEventListener("input", (e) => {
 			const isTarget = e.target instanceof HTMLInputElement;
 			if (!isTarget) return;
