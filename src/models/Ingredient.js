@@ -11,15 +11,13 @@
 export class Ingredient {
 	/** @param {TIngredient} ingredient  */
 	constructor(ingredient) {
-		const { ingredient: name, quantity, unit } = ingredient;
-
-		this._ingredient = name;
-		this._quantity = quantity;
-		this._unit = unit;
+		this._ingredient = ingredient.ingredient;
+		this._quantity = ingredient.quantity;
+		this._unit = ingredient.unit;
 	}
 
 	get ingredient() {
-		return this._ingredient;
+		return this._ingredient.toLowerCase();
 	}
 
 	get quantity() {

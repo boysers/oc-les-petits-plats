@@ -50,7 +50,7 @@ export class Adapter {
 	/**
 	 * @template T, U
 	 * @param {Array<T>} array
-	 * @param {(item: T, index: number, array: Array<T>) => N} callback
+	 * @param {(item: T, index: number, array: Array<T>) => U} callback
 	 * @returns {Array<U>}
 	 */
 	mapArray(array, callback) {

@@ -1,6 +1,7 @@
 "use strict";
 
 import { Adapter } from "../adapter";
+import { BASE_URL } from "../constants";
 import { Ingredient } from "./Ingredient";
 
 /**
@@ -18,34 +19,23 @@ import { Ingredient } from "./Ingredient";
 
 /** Recipe Model */
 export class Recipe {
-	/** @param {TRecipe} recipe */
-	constructor(recipe) {
-		const adapter = new Adapter();
+	/**
+	 * @param {TRecipe} recipe
+	 * @param {Adapter} adapter
+	 */
+	constructor(recipe, adapter = new Adapter()) {
+		this._id = recipe.id;
+		this._image = recipe.image;
+		this._name = recipe.name;
+		this._servings = recipe.servings;
+		this._ingredients = recipe.ingredients;
+		this._time = recipe.time;
+		this._description = recipe.description;
+		this._appliance = recipe.appliance;
+		this._ustensils = recipe.ustensils;
 
-		const {
-			id,
-			image,
-			name,
-			servings,
-			ingredients,
-			time,
-			description,
-			appliance,
-			ustensils,
-		} = recipe;
-
-		this._id = id;
-		this._image = image;
-		this._name = name;
-		this._servings = servings;
-		this._ingredients = adapter.createInstantiateObjects(
-			ingredients,
-			Ingredient
-		);
-		this._time = time;
-		this._description = description;
-		this._appliance = appliance;
-		this._ustensils = ustensils;
+		this._createInstantiateObjects = adapter.createInstantiateObjects;
+		this._mapArray = adapter.mapArray;
 	}
 
 	get id() {
@@ -53,10 +43,11 @@ export class Recipe {
 	}
 
 	get image() {
-		return new URL(
-			`${import.meta.env.BASE_URL}recipe-photos/${this._image}`,
+		const { href } = new URL(
+			`${BASE_URL}recipe-photos/${this._image}`,
 			document.location
-		).href;
+		);
+		return href;
 	}
 
 	get name() {
@@ -68,7 +59,7 @@ export class Recipe {
 	}
 
 	get ingredients() {
-		return this._ingredients;
+		return this._createInstantiateObjects(this._ingredients, Ingredient);
 	}
 
 	get time() {
@@ -80,10 +71,12 @@ export class Recipe {
 	}
 
 	get appliance() {
-		return this._appliance;
+		return this._appliance.toLowerCase();
 	}
 
 	get ustensils() {
-		return this._ustensils;
+		return this._mapArray(this._ustensils, (ustensil) =>
+			ustensil.toLowerCase()
+		);
 	}
 }
