@@ -35,11 +35,12 @@ export class RecipeFilter {
 	}
 
 	/**
+	 * Filter : name, description, appliance, ingredients and ustensils
 	 * @param {Recipe} recipe
 	 * @param {string} keyword
 	 * @returns {boolean}
 	 */
-	_isKeywordMatch(recipe, keyword) {
+	_isKeywordMatchV1(recipe, keyword) {
 		return (
 			keyword.length < MIN_KEYWORD_LENGTH ||
 			recipe.name.toLowerCase().includes(keyword) ||
@@ -52,6 +53,32 @@ export class RecipeFilter {
 				ustensil.includes(keyword)
 			)
 		);
+	}
+
+	/**
+	 * Filter : name, description and ingredients
+	 * @param {Recipe} recipe
+	 * @param {string} keyword
+	 * @returns {boolean}
+	 */
+	_isKeywordMatchV2(recipe, keyword) {
+		return (
+			keyword.length < MIN_KEYWORD_LENGTH ||
+			recipe.name.toLowerCase().includes(keyword) ||
+			recipe.description.toLowerCase().includes(keyword) ||
+			this._someInArray(recipe.ingredients, ({ ingredient }) =>
+				ingredient.includes(keyword)
+			)
+		);
+	}
+
+	/**
+	 * @param {Recipe} recipe
+	 * @param {string} keyword
+	 * @returns {boolean}
+	 */
+	_isKeywordMatch(recipe, keyword) {
+		return this._isKeywordMatchV2(recipe, keyword);
 	}
 
 	/**
