@@ -11,6 +11,7 @@
 		border-radius: 11px;
 		font-size: 16px;
 		padding-left: 35px;
+		padding-right: 112px;
 
 		&:focus {
 			outline: none;
@@ -56,12 +57,13 @@
 		right: calc(50px + 32px);
 		cursor: pointer;
 		font-size: 18px;
+		color: $secondary-text-color;
 
 		transform: translateY(-50%);
 
 		&.fa-circle-xmark {
 			font-size: 27px;
-			right: calc(50px + 26px)
+			right: calc(50px + 26px);
 		}
 
 		&.hidden {

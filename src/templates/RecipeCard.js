@@ -38,6 +38,14 @@ export class RecipeCard {
 			.create("div");
 	}
 
+	get recipe() {
+		return this._recipe;
+	}
+
+	get hidden() {
+		return this._card.hidden;
+	}
+
 	/**
 	 * @param {boolean} hidden
 	 * @returns {this}

@@ -20,7 +20,11 @@
 export function createElement(tagname, props = {}, ...children) {
 	const element = document.createElement(tagname);
 
-	if (props.classes && Array.isArray(props.classes)) {
+	if (
+		props.classes &&
+		Array.isArray(props.classes) &&
+		props.classes.length > 0
+	) {
 		element.classList.add(...props.classes);
 	}
 

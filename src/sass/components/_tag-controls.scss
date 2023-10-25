@@ -1,0 +1,55 @@
+.tag-controls {
+	max-width: 1440px;
+	margin: auto;
+	padding: 16px 100px;
+
+	&__header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	&__tag-menu-wrapper {
+		display: flex;
+		gap: 66px;
+		align-items: baseline;
+	}
+
+	&__tag-active-list {
+		margin-top: 21px;
+		display: flex;
+		gap: 20px;
+		flex-wrap: wrap;
+
+		.active-card {
+			background-color: $primary-color;
+			border-radius: 10px;
+			height: 53px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: 0 18px;
+
+			position: relative;
+
+			&__name {
+				font-size: 14px;
+				margin-right: 60px;
+				pointer-events: none;
+			}
+
+			.close {
+				cursor: pointer;
+				font-size: 17px;
+				position: absolute;
+				top: 50%;
+				right: 18px;
+				transform: translateY(-50%);
+
+				&.fa-circle-xmark {
+					right: 16px;
+				}
+			}
+		}
+	}
+}

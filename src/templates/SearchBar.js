@@ -67,7 +67,6 @@ export class SearchBar {
 		const input = new CreateElement()
 			.addClasses("search-bar__input")
 			.create("input");
-		input.placeholder = "Rechercher une recette, un ingrédient, ...";
 
 		const icon = new CreateElement()
 			.addClasses("fa-solid", "fa-magnifying-glass")
@@ -117,6 +116,8 @@ export class SearchBar {
 
 			const inputEvent = new Event("input");
 			input.dispatchEvent(inputEvent);
+
+			input.focus();
 		});
 
 		return this._formControl;
