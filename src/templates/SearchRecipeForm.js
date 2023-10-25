@@ -4,6 +4,7 @@ import { Adapter } from "../adapter";
 import { MIN_KEYWORD_LENGTH } from "../constants";
 import { RecipeFilter } from "../recipe/RecipeFilter";
 import { cleanAndNormalizeString } from "../utils/normalizeString";
+import { CreateElement } from "./CreateElement";
 import { RecipeCard } from "./RecipeCard";
 import { SearchBar } from "./SearchBar";
 import { TagMenu } from "./TagMenu";
@@ -60,6 +61,11 @@ export class SearchRecipeForm {
 		this._tagActiveList = document.querySelector(
 			".tag-controls__tag-active-list"
 		);
+
+		this._notFoundEl = new CreateElement()
+			.addChildren("not found")
+			.addClasses("close", "not-found")
+			.create("p");
 	}
 
 	/**
@@ -129,6 +135,13 @@ export class SearchRecipeForm {
 			this._recipeCountEl.textContent = count;
 		}
 
+		if (!filteredRecipes.length) {
+			this._notFoundEl.classList.remove("close");
+			this._notFoundEl.innerText = `Aucune recette ne contient ‘${this._keyword}’ vous pouvez chercher « tarte aux pommes », « poisson », etc.`;
+		} else {
+			this._notFoundEl.classList.add("close");
+		}
+
 		this._tagMenus.appliances.setHiddenTags(updatedTagList.appliances);
 		this._tagMenus.ustensils.setHiddenTags(updatedTagList.ustensils);
 		this._tagMenus.ingredients.setHiddenTags(updatedTagList.ingredients);
@@ -165,6 +178,7 @@ export class SearchRecipeForm {
 	 */
 	render() {
 		this._initSearchBar();
+		this._recipesWrapper.appendChild(this._notFoundEl);
 
 		/** @type {Set<string>} */
 		const ustensils = new Set();
