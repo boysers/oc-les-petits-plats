@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Capitalize the first letter of the sentence
  * @param {string} str

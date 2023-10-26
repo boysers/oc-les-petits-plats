@@ -13,7 +13,10 @@ import { TagMenu } from "./TagMenu";
 
 /** Search recipe form template */
 export class SearchRecipeForm {
-	/** @param {Array<Recipe>} recipes */
+	/** 
+	 * @param {Array<Recipe>} recipes
+	 * @param {Adapter} adapter
+	 */
 	constructor(recipes, adapter = new Adapter()) {
 		this._someInArray = adapter.someInArray;
 		this._mapArray = adapter.mapArray;

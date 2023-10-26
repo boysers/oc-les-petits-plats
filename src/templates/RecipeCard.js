@@ -1,70 +1,77 @@
 "use strict";
 
+import { Adapter } from "../adapter";
 import { capitalizeFirstLetter } from "../utils/capitalizeFirstLetter";
 import { CreateElement } from "./CreateElement";
 
+/** @typedef {import('../models/Recipe').Recipe} Recipe */
+
+/** @typedef {import('../models/Ingredient').Ingredient} Ingredient */
+
 export class RecipeCard {
-	/** @param {import('../models/Recipe').Recipe} recipe  */
-	constructor(recipe) {
+	/**
+	 * @param {Recipe} recipe
+	 * @param {Adapter} adapter
+	 */
+	constructor(recipe, adapter = new Adapter()) {
 		this._recipe = recipe;
+
+		/**
+		 * @template T
+		 * @param {(item: Ingredient, index: number, array: Array<Ingredient>) => T} callback
+		 * @returns {T[]}
+		 */
+		this._mapIngredients = (callback) => {
+			return adapter.mapArray(this._recipe.ingredients, callback);
+		};
 
 		/** @type {HTMLElement | undefined} */
 		this._card;
-	}
-
-	/**
-	 * @param {import('../models/Ingredient').Ingredient} ingredients
-	 * @returns {HTMLDivElement}
-	 */
-	_createIngredientsWrapper(ingredients) {
-		return new CreateElement()
-			.addChildren(
-				ingredients.map(({ ingredient, quantity, unit }) => {
-					const ingredientElement = new CreateElement()
-						.addClasses("subtitle1")
-						.addChildren(capitalizeFirstLetter(ingredient))
-						.create("p");
-
-					const quantityElement = new CreateElement()
-						.addClasses("subtitle2")
-						.addChildren(`${quantity ?? ""} ${unit ?? ""}`.trim())
-						.create("p");
-
-					return new CreateElement()
-						.addChildren(ingredientElement, quantityElement)
-						.create("div");
-				})
-			)
-			.addClasses("recipe-card__ingredients-wrapper")
-			.create("div");
 	}
 
 	get recipe() {
 		return this._recipe;
 	}
 
-	get hidden() {
-		return this._card.hidden;
+	/**
+	 * @param {Ingredient} ingredient
+	 * @returns {HTMLDivElement}
+	 */
+	_createIngredientEl(ingredient) {
+		const { ingredient: name, unit, quantity: qty } = ingredient;
+
+		const ingredientElement = new CreateElement()
+			.addClasses("subtitle1")
+			.addChildren(capitalizeFirstLetter(name))
+			.create("p");
+
+		const quantityElement = new CreateElement()
+			.addClasses("subtitle2")
+			.addChildren(qty ? (unit ? `${qty} ${unit}` : qty) : null)
+			.create("p");
+
+		return new CreateElement()
+			.addChildren(ingredientElement, quantityElement)
+			.create("div");
 	}
 
 	/**
-	 * @param {boolean} hidden
-	 * @returns {this}
+	 * @param {Array<Ingredient>} ingredients
+	 * @returns {HTMLDivElement}
 	 */
-	setHidden(hidden) {
-		if (!this._card && this._card.hidden !== hidden) return;
-		this._card.hidden = hidden;
-		this._card.setAttribute("aria-hidden", hidden ? "true" : "false");
-		return this;
+	_createIngredientsWrapper() {
+		const ingredientEls = this._mapIngredients((ingredient) =>
+			this._createIngredientEl(ingredient)
+		);
+
+		return new CreateElement()
+			.addChildren(ingredientEls)
+			.addClasses("recipe-card__ingredients-wrapper")
+			.create("div");
 	}
 
-	create() {
-		const { image, name, description, ingredients, time } = this._recipe;
-
-		const imgEl = new CreateElement()
-			.addAttributes({ src: image, alt: name })
-			.addClasses("recipe-card__image")
-			.create("img");
+	_createInfoEl() {
+		const { name, description, ingredients } = this._recipe;
 
 		const nameEl = new CreateElement()
 			.addChildren(name)
@@ -89,7 +96,7 @@ export class RecipeCard {
 
 		const ingredientsWrapper = this._createIngredientsWrapper(ingredients);
 
-		const cardInfoEl = new CreateElement()
+		return new CreateElement()
 			.addClasses("recipe-card__info-wrapper")
 			.addChildren(
 				nameEl,
@@ -99,13 +106,38 @@ export class RecipeCard {
 				ingredientsWrapper
 			)
 			.create("div");
+	}
 
-		this._card = new CreateElement()
+	_createCard() {
+		const { image, name, time } = this._recipe;
+
+		const imgEl = new CreateElement()
+			.addAttributes({ src: image, alt: name })
+			.addClasses("recipe-card__image")
+			.create("img");
+
+		const infoEl = this._createInfoEl();
+
+		return new CreateElement()
 			.addClasses("recipe-card", "recipe-card-wrapper")
 			.addAttributes({ "data-time": time, "aria-hidden": "false" })
-			.addChildren(imgEl, cardInfoEl)
+			.addChildren(imgEl, infoEl)
 			.create("article");
+	}
 
+	/**
+	 * @param {boolean} hidden
+	 * @returns {this}
+	 */
+	setHidden(hidden) {
+		if (!this._card && this._card.hidden !== hidden) return;
+		this._card.hidden = hidden;
+		this._card.setAttribute("aria-hidden", hidden ? "true" : "false");
+		return this;
+	}
+
+	create() {
+		this._card = this._createCard();
 		return this._card;
 	}
 }

@@ -10,15 +10,15 @@
 /** Ingredient Model */
 export class Ingredient {
 	/**
-	 * @param {TIngredient} data
+	 * @param {TIngredient} dataIngredient
 	 * @returns {Ingredient}
 	 */
-	static createIngredient(data) {
-		if (!data.ingredient) {
+	static createIngredient(dataIngredient) {
+		if (!dataIngredient.ingredient) {
 			throw new Error(`The ingredient key is required`);
 		}
 
-		return new Ingredient(data);
+		return new Ingredient(dataIngredient);
 	}
 
 	/** @param {TIngredient} ingredient  */

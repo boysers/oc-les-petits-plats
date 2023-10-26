@@ -15,7 +15,7 @@ import { MIN_KEYWORD_LENGTH } from "../constants";
 export class RecipeFilter {
 	/**
 	 * @param {Array<Recipe>} recipes
-	 * @param {Adapter} [adapter]
+	 * @param {Adapter} adapter
 	 */
 	constructor(recipes, adapter = new Adapter()) {
 		this._recipes = recipes;
@@ -23,6 +23,14 @@ export class RecipeFilter {
 		this._foreach = adapter.foreach;
 		this._mapArray = adapter.mapArray;
 		this._someInArray = adapter.someInArray;
+
+		/**
+		 * @param {(value: Recipe, index: number, array: Array<Recipe>) => boolean} predicate
+		 * @returns {Array<Recipe>}
+		 */
+		this._filterRecipes = (predicate) => {
+			return adapter.filterArray(this._recipes, predicate);
+		};
 	}
 
 	/**
@@ -35,7 +43,7 @@ export class RecipeFilter {
 	}
 
 	/**
-	 * Filter : name, description, appliance, ingredients and ustensils
+	 * Match : name, description, appliance, ingredients and ustensils
 	 * @param {Recipe} recipe
 	 * @param {string} keyword
 	 * @returns {boolean}
@@ -56,7 +64,7 @@ export class RecipeFilter {
 	}
 
 	/**
-	 * Filter : name, description and ingredients
+	 * Match : name, description and ingredients
 	 * @param {Recipe} recipe
 	 * @param {string} keyword
 	 * @returns {boolean}
@@ -82,7 +90,6 @@ export class RecipeFilter {
 	}
 
 	/**
-	 *
 	 * @param {Recipe} recipe
 	 * @param {Array<string>} ingredients
 	 * @returns {boolean}
@@ -165,7 +172,7 @@ export class RecipeFilter {
 		ustensils = this._arrayItemToLowerCase(ustensils);
 		appliances = this._arrayItemToLowerCase(appliances);
 
-		const filterRecipes = this._recipes.filter((recipe) => {
+		return this._filterRecipes((recipe) => {
 			const isKeywordMatch = this._isKeywordMatch(recipe, keyword);
 
 			const areIngredientsMatch = this._areIngredientsMatch(
@@ -187,7 +194,5 @@ export class RecipeFilter {
 				isApplianceMatch
 			);
 		});
-
-		return filterRecipes;
 	}
 }

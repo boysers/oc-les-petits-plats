@@ -4,6 +4,16 @@
  * @template O, T
  * @param {O[]} objects
  * @param {new (object: O) => T} constructor
+ * @returns {T[]}
+ */
+export function instantiateObjectsArrayObject(objects, constructor) {
+	return objects.map((object) => new constructor(object));
+}
+
+/**
+ * @template O, T
+ * @param {O[]} objects
+ * @param {new (object: O) => T} constructor
  * @returns {T}
  */
 export function instantiateObjectsNativeLoop(objects, constructor) {
@@ -15,14 +25,4 @@ export function instantiateObjectsNativeLoop(objects, constructor) {
 	}
 
 	return objectInstances;
-}
-
-/**
- * @template O, T
- * @param {O[]} objects
- * @param {new (object: O) => T} constructor
- * @returns {T[]}
- */
-export function instantiateObjectsArrayObject(objects, constructor) {
-	return objects.map((object) => new constructor(object));
 }

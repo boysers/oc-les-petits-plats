@@ -1,5 +1,6 @@
 "use strict";
 
+import { Adapter } from "../adapter";
 import { CreateElement } from "./CreateElement";
 
 /**
@@ -8,8 +9,8 @@ import { CreateElement } from "./CreateElement";
  */
 
 export class SearchBar {
-	constructor() {
-		/** @type {Record<EventType, Array<(event: Event) => void>>} */
+	constructor(adapter = new Adapter()) {
+		/** @type {Record<EventType, Array<(event: Event | FormDataEvent) => void>>} */
 		this._listeners = {
 			input: [],
 			submit: [],
@@ -18,39 +19,15 @@ export class SearchBar {
 
 		/** @type {string | undefined} */
 		this._placeholder;
-	}
 
-	/**
-	 * @param {HTMLInputElement} input
-	 * @param {(event: Event) => void} callback
-	 */
-	_initOnInput(input, callback) {
-		input.addEventListener("input", (e) => {
-			callback instanceof Function && callback(e);
-			this._listeners["input"].forEach((listener) => listener(e));
-		});
-	}
-
-	/**
-	 * @param {HTMLInputElement} form
-	 * @param {(event: FormDataEvent) => void} [callback]
-	 */
-	_initOnSubmit(form, callback) {
-		form.addEventListener("submit", (e) => {
-			callback instanceof Function && callback(e);
-			this._listeners["submit"].forEach((listener) => listener(e));
-		});
-	}
-
-	/**
-	 * @param {HTMLInputElement} form
-	 * @param {(event: Event) => void} [callback]
-	 */
-	_initOnClick(cto, callback) {
-		cto.addEventListener("click", (e) => {
-			callback instanceof Function && callback(e);
-			this._listeners["click"].forEach((listener) => listener(e));
-		});
+		/**
+		 * @param {EventType} type
+		 * @param {Event | FormDataEvent} e
+		 * @returns {void}
+		 */
+		this._foreachListeners = (type, e) => {
+			adapter.foreach(this._listeners[type], (listener) => listener(e));
+		};
 	}
 
 	_createInputEl() {
@@ -94,6 +71,39 @@ export class SearchBar {
 			.create("button");
 
 		return button;
+	}
+
+	/**
+	 * @param {HTMLInputElement} input
+	 * @param {(event: Event) => void} callback
+	 */
+	_initOnInput(input, callback) {
+		input.addEventListener("input", (event) => {
+			callback instanceof Function && callback(event);
+			this._foreachListeners("input", event);
+		});
+	}
+
+	/**
+	 * @param {HTMLInputElement} form
+	 * @param {(event: FormDataEvent) => void} [callback]
+	 */
+	_initOnSubmit(form, callback) {
+		form.addEventListener("submit", (event) => {
+			callback instanceof Function && callback(event);
+			this._foreachListeners("submit", event);
+		});
+	}
+
+	/**
+	 * @param {HTMLInputElement} form
+	 * @param {(event: Event) => void} [callback]
+	 */
+	_initOnClick(cto, callback) {
+		cto.addEventListener("click", (event) => {
+			callback instanceof Function && callback(event);
+			this._foreachListeners("click", event);
+		});
 	}
 
 	/**

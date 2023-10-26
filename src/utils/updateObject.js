@@ -4,8 +4,8 @@ import { isTargetAndSourceObject } from "./isTypes";
 
 /**
  * @template T
- * @param {T} target
- * @param {T} source
+ * @param {T} target - The target object to be updated
+ * @param {T} source - The source object containing new values
  * @returns {void}
  */
 export function updateObjectArrayObject(target, source) {
@@ -18,8 +18,8 @@ export function updateObjectArrayObject(target, source) {
 
 /**
  * @template T
- * @param {T} target
- * @param {T} source
+ * @param {T} target - The target object to be updated
+ * @param {T} source - The source object containing new values
  * @returns {void}
  */
 export function updateObjectNativeLoop(target, source) {

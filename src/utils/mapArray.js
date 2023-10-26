@@ -23,6 +23,7 @@ export function mapArrayObject(array, callback) {
 export function mapArrayNativeLoop(array, callback) {
 	if (!isArrayAndCallback(array, callback)) return;
 
+	/** @type {Array<U>} */
 	const newArray = [];
 
 	for (let index = 0; index < array.length; index++) {

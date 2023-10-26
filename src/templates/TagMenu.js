@@ -13,7 +13,10 @@ import { TagCard } from "./TagCard";
  */
 
 export class TagMenu {
-	/** @param {Array<string>} tags */
+	/** 
+	 * @param {Array<string>} tags
+	 * @param {Adapter} adapter
+	 */
 	constructor(tags, adapter = new Adapter()) {
 		this._mapArray = adapter.mapArray;
 		this._someInArray = adapter.someInArray;
@@ -61,7 +64,6 @@ export class TagMenu {
 		});
 	}
 
-	/** @returns {void} */
 	_filterTagCards() {
 		const uniqueTags = new Set(this._hiddenTags);
 

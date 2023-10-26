@@ -21,6 +21,7 @@ import { Ingredient } from "./Ingredient";
 export class Recipe {
 	/**
 	 * @param {TRecipe} recipe
+	 * @param {Adapter} adapter
 	 * @returns {Recipe}
 	 */
 	static createRecipe(recipe, adapter = new Adapter()) {
@@ -31,7 +32,7 @@ export class Recipe {
 	 * @param {TRecipe} recipe
 	 * @param {Adapter} adapter
 	 */
-	constructor(recipe, adapter) {
+	constructor(recipe, adapter = new Adapter()) {
 		this._mapArray = adapter.mapArray;
 
 		this._id = recipe.id;

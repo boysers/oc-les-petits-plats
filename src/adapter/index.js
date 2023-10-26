@@ -1,5 +1,6 @@
 "use strict";
 
+import { filterArrayObject } from "../utils/filterArray";
 import { foreachArrayObject } from "../utils/foreach";
 import { instantiateObjectsArrayObject } from "../utils/instantiateObjects";
 import { mapArrayObject } from "../utils/mapArray";
@@ -55,5 +56,15 @@ export class Adapter {
 	 */
 	mapArray(array, callback) {
 		return mapArrayObject(array, callback);
+	}
+
+	/**
+	 * @template T
+	 * @param {Array<T>} array
+	 * @param {(value: T, index: number, array: Array<T>) => boolean} predicate
+	 * @returns {Array<T>}
+	 */
+	filterArray(array, predicate) {
+		return filterArrayObject(array, predicate);
 	}
 }
