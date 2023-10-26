@@ -4,9 +4,9 @@ import { Adapter } from "../adapter";
 import { createElement } from "../utils/createElement";
 
 export class CreateElement {
+	/** @param {Adapter} adapter */
 	constructor(adapter = new Adapter()) {
-		/** @type {string | undefined} */
-		this._id;
+		this._updateObject = adapter.updateObject;
 
 		/** @type {Array<string>} */
 		this._classes = [];
@@ -16,17 +16,6 @@ export class CreateElement {
 
 		/** @type {Array<string | number | Node | Node[]>} */
 		this._children = [];
-
-		this._updateObject = adapter.updateObject;
-	}
-
-	/**
-	 * @param {string} id
-	 * @returns {this}
-	 */
-	addId(id) {
-		this._id = id;
-		return this;
 	}
 
 	/**

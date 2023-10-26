@@ -9,9 +9,6 @@ import { CreateElement } from "./CreateElement";
 
 export class SearchBar {
 	constructor() {
-		/** @type {HTMLElement | undefined} */
-		this._formControl;
-
 		/** @type {Record<EventType, Array<(event: Event) => void>>} */
 		this._listeners = {
 			input: [],
@@ -56,6 +53,49 @@ export class SearchBar {
 		});
 	}
 
+	_createInputEl() {
+		const input = new CreateElement()
+			.addClasses("search-bar__input")
+			.create("input");
+
+		if (this._placeholder) {
+			input.placeholder = this._placeholder;
+		}
+
+		return input;
+	}
+
+	_createCloseButton() {
+		const closeButton = new CreateElement()
+			.addClasses("fa-solid", "fa-xmark", "close", "hidden")
+			.create("i");
+
+		closeButton.addEventListener("mouseenter", () => {
+			closeButton.classList.remove("fa-xmark");
+			closeButton.classList.add("fa-circle-xmark");
+		});
+
+		closeButton.addEventListener("mouseleave", () => {
+			closeButton.classList.add("fa-xmark");
+			closeButton.classList.remove("fa-circle-xmark");
+		});
+
+		return closeButton;
+	}
+
+	_createSearchButton() {
+		const searchIcon = new CreateElement()
+			.addClasses("fa-solid", "fa-magnifying-glass")
+			.create("i");
+
+		const button = new CreateElement()
+			.addClasses("search-bar__button")
+			.addChildren(searchIcon)
+			.create("button");
+
+		return button;
+	}
+
 	/**
 	 * Added an event listener.
 	 * @param {EventType} type
@@ -76,41 +116,18 @@ export class SearchBar {
 	}
 
 	create() {
-		const input = new CreateElement()
-			.addClasses("search-bar__input")
-			.create("input");
+		const inputEvent = new Event("input");
 
-		if (this._placeholder) input.placeholder = this._placeholder;
+		const inputEl = this._createInputEl();
+		const searchBtn = this._createSearchButton();
+		const closeEl = this._createCloseButton();
 
-		const icon = new CreateElement()
-			.addClasses("fa-solid", "fa-magnifying-glass")
-			.create("i");
-
-		const button = new CreateElement()
-			.addClasses("search-bar__button")
-			.addChildren(icon)
-			.create("button");
-
-		const closeEl = new CreateElement()
-			.addClasses("fa-solid", "fa-xmark", "close", "hidden")
-			.create("i");
-
-		this._formControl = new CreateElement()
-			.addChildren(input, button, closeEl)
+		const formControl = new CreateElement()
+			.addChildren(inputEl, searchBtn, closeEl)
 			.addClasses("search-bar")
 			.create("form");
 
-		closeEl.addEventListener("mouseenter", () => {
-			closeEl.classList.remove("fa-xmark");
-			closeEl.classList.add("fa-circle-xmark");
-		});
-
-		closeEl.addEventListener("mouseleave", () => {
-			closeEl.classList.add("fa-xmark");
-			closeEl.classList.remove("fa-circle-xmark");
-		});
-
-		this._initOnInput(input, (e) => {
+		this._initOnInput(inputEl, (e) => {
 			const isTarget = e.target instanceof HTMLInputElement;
 			if (!isTarget) return;
 
@@ -121,19 +138,16 @@ export class SearchBar {
 			closeEl.classList.remove("hidden");
 		});
 
-		this._initOnSubmit(this._formControl, (e) => e.preventDefault());
+		this._initOnSubmit(formControl, (e) => e.preventDefault());
 
 		this._initOnClick(closeEl, (e) => {
 			if (closeEl !== e.target) return;
 
-			input.value = "";
-
-			const inputEvent = new Event("input");
-			input.dispatchEvent(inputEvent);
-
-			input.focus();
+			inputEl.value = "";
+			inputEl.dispatchEvent(inputEvent);
+			inputEl.focus();
 		});
 
-		return this._formControl;
+		return formControl;
 	}
 }

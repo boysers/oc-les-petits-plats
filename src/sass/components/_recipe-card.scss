@@ -31,6 +31,14 @@
 		padding-bottom: 61px;
 	}
 
+	&__description {
+		overflow: hidden;
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 4;
+		white-space: pre-wrap;
+	}
+
 	&__ingredients-wrapper {
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);

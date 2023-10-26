@@ -8,7 +8,7 @@ import { isArrayAndCallback } from "./isTypes";
  * @param {(item: T, index: number, array: Array<T>) => void} conditionCallback
  * @returns {boolean}
  */
-export function someInArrayArrayObject(array, conditionCallback) {
+export function someInArrayObject(array, conditionCallback) {
 	if (!isArrayAndCallback(array, conditionCallback)) return;
 
 	return array.some(conditionCallback);

@@ -14,8 +14,7 @@ import { TagCard } from "./TagCard";
 
 export class TagMenu {
 	/** @param {Array<string>} tags */
-	constructor(tags) {
-		const adapter = new Adapter();
+	constructor(tags, adapter = new Adapter()) {
 		this._mapArray = adapter.mapArray;
 		this._someInArray = adapter.someInArray;
 		this._foreach = adapter.foreach;
@@ -33,7 +32,7 @@ export class TagMenu {
 		/** @type {HTMLElement} */
 		this._button;
 
-		this._tagCards = adapter.createInstantiateObjects(this._tags, TagCard);
+		this._tagCards = adapter.instantiateObjects(this._tags, TagCard);
 
 		/** @type {Set<string>} */
 		this._activeTags = new Set();
@@ -60,8 +59,6 @@ export class TagMenu {
 		this._eventActiveTags = new CustomEvent("active-tags", {
 			detail: { tags: [...this._activeTags] },
 		});
-
-		this._isOpen = false;
 	}
 
 	/** @returns {void} */
@@ -75,19 +72,6 @@ export class TagMenu {
 				!uniqueTags.has(tag);
 
 			this._tagCards[index].setHidden(shouldHide);
-		});
-	}
-
-	_filterTagV1() {
-		this._forEachTag((tag, index) => {
-			const shouldHide =
-				this._activeTags.has(tag) ||
-				!tag.toLowerCase().includes(this._keyword) ||
-				this._someInArray(this._hiddenTags, (hiddenTag) =>
-					hiddenTag.includes(tag)
-				);
-
-			this._tagCards[index].setHidden(!shouldHide);
 		});
 	}
 
@@ -131,11 +115,9 @@ export class TagMenu {
 	 * @returns {HTMLElement}
 	 */
 	_createButton(value, collapseEl, searchBar) {
-		// let isOpen = false;
-		let isOpen = this._isOpen;
+		let isOpen = false;
 
 		this._input = searchBar.querySelector("input");
-		const input = this._input;
 
 		const chevron = new CreateElement()
 			.addClasses("fa-solid", "fa-chevron-down")
@@ -149,7 +131,7 @@ export class TagMenu {
 			.addClasses("tag-menu__button")
 			.create("div");
 
-		button.addEventListener("close", () => {
+		const handleButtonClick = () => {
 			if (isOpen) {
 				isOpen = false;
 
@@ -160,25 +142,7 @@ export class TagMenu {
 
 				this._tagMenu.classList.remove("open");
 
-				input.value = "";
-				this._keyword = "";
-				this._filterTagCards();
-				return;
-			}
-		});
-
-		button.addEventListener("click", () => {
-			if (isOpen) {
-				isOpen = false;
-
-				chevron.classList.remove("fa-chevron-up");
-				chevron.classList.add("fa-chevron-down");
-
-				collapseEl.classList.remove("tag-menu__collapse--open");
-
-				this._tagMenu.classList.remove("open");
-
-				input.value = "";
+				this._input.value = "";
 				this._keyword = "";
 				this._filterTagCards();
 				return;
@@ -192,10 +156,14 @@ export class TagMenu {
 
 			collapseEl.classList.add("tag-menu__collapse--open");
 
-			input.focus();
+			this._input.focus();
+		};
+
+		button.addEventListener("close", () => {
+			if (isOpen) handleButtonClick();
 		});
 
-		this._button = button;
+		button.addEventListener("click", handleButtonClick);
 
 		return button;
 	}
@@ -275,26 +243,26 @@ export class TagMenu {
 				.addClasses("active-card__name")
 				.create("p");
 
-			const closeLabelBtn = new CreateElement()
+			const labelCloseBtn = new CreateElement()
 				.addClasses("fa-solid", "fa-xmark", "close", "active-card__btn")
 				.create("i");
 
 			const label = new CreateElement()
-				.addChildren(labelName, closeLabelBtn)
+				.addChildren(labelName, labelCloseBtn)
 				.addClasses("active-card")
 				.create("div");
 
-			closeLabelBtn.addEventListener("mouseenter", () => {
-				closeLabelBtn.classList.remove("fa-xmark");
-				closeLabelBtn.classList.add("fa-circle-xmark");
+			labelCloseBtn.addEventListener("mouseenter", () => {
+				labelCloseBtn.classList.remove("fa-xmark");
+				labelCloseBtn.classList.add("fa-circle-xmark");
 			});
 
-			closeLabelBtn.addEventListener("mouseleave", () => {
-				closeLabelBtn.classList.add("fa-xmark");
-				closeLabelBtn.classList.remove("fa-circle-xmark");
+			labelCloseBtn.addEventListener("mouseleave", () => {
+				labelCloseBtn.classList.add("fa-xmark");
+				labelCloseBtn.classList.remove("fa-circle-xmark");
 			});
 
-			closeLabelBtn.addEventListener("click", () => {
+			labelCloseBtn.addEventListener("click", () => {
 				if (!active) return;
 
 				this._activeTags.delete(tagname);
@@ -349,10 +317,10 @@ export class TagMenu {
 			.addChildren(collapse)
 			.create("div");
 
-		const button = this._createButton(value, collapse, searchBar);
+		this._button = this._createButton(value, collapse, searchBar);
 
 		this._tagMenu = new CreateElement()
-			.addChildren(button, collapseWrapper)
+			.addChildren(this._button, collapseWrapper)
 			.addClasses("tag-menu")
 			.create("div");
 

@@ -21,9 +21,19 @@ import { Ingredient } from "./Ingredient";
 export class Recipe {
 	/**
 	 * @param {TRecipe} recipe
+	 * @returns {Recipe}
+	 */
+	static createRecipe(recipe, adapter = new Adapter()) {
+		return new Recipe(recipe, adapter);
+	}
+
+	/**
+	 * @param {TRecipe} recipe
 	 * @param {Adapter} adapter
 	 */
-	constructor(recipe, adapter = new Adapter()) {
+	constructor(recipe, adapter) {
+		this._mapArray = adapter.mapArray;
+
 		this._id = recipe.id;
 		this._image = recipe.image;
 		this._name = recipe.name;
@@ -33,9 +43,18 @@ export class Recipe {
 		this._description = recipe.description;
 		this._appliance = recipe.appliance;
 		this._ustensils = recipe.ustensils;
+	}
 
-		this._createInstantiateObjects = adapter.createInstantiateObjects;
-		this._mapArray = adapter.mapArray;
+	_formatTime() {
+		return `${this._time}min`;
+	}
+
+	_getImageUrl() {
+		const { href } = new URL(
+			`${BASE_URL}recipe-photos/${this._image}`,
+			document.location
+		);
+		return href;
 	}
 
 	get id() {
@@ -43,11 +62,7 @@ export class Recipe {
 	}
 
 	get image() {
-		const { href } = new URL(
-			`${BASE_URL}recipe-photos/${this._image}`,
-			document.location
-		);
-		return href;
+		return this._getImageUrl();
 	}
 
 	get name() {
@@ -59,11 +74,13 @@ export class Recipe {
 	}
 
 	get ingredients() {
-		return this._createInstantiateObjects(this._ingredients, Ingredient);
+		return this._mapArray(this._ingredients, (ingredient) =>
+			Ingredient.createIngredient(ingredient)
+		);
 	}
 
 	get time() {
-		return `${this._time}min`;
+		return this._formatTime();
 	}
 
 	get description() {

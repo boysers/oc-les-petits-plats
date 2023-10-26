@@ -9,6 +9,18 @@
 
 /** Ingredient Model */
 export class Ingredient {
+	/**
+	 * @param {TIngredient} data
+	 * @returns {Ingredient}
+	 */
+	static createIngredient(data) {
+		if (!data.ingredient) {
+			throw new Error(`The ingredient key is required`);
+		}
+
+		return new Ingredient(data);
+	}
+
 	/** @param {TIngredient} ingredient  */
 	constructor(ingredient) {
 		this._ingredient = ingredient.ingredient;

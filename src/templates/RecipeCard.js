@@ -79,6 +79,7 @@ export class RecipeCard {
 		const descriptionEl = new CreateElement()
 			.addChildren(description)
 			.addClasses("recipe-card__description")
+			.addAttributes({ title: description })
 			.create("p");
 
 		const titleIngredientsEl = new CreateElement()

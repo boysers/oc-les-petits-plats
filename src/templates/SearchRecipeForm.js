@@ -37,7 +37,7 @@ export class SearchRecipeForm {
 		/** @type {Record<'ingredients' | 'ustensils' | 'appliances', TagMenu>} */
 		this._tagMenus = {};
 
-		this._recipeCards = adapter.createInstantiateObjects(
+		this._recipeCards = adapter.instantiateObjects(
 			this._recipes,
 			RecipeCard
 		);

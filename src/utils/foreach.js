@@ -11,7 +11,7 @@ import { isArrayAndCallback } from "./isTypes";
 export function foreachArrayObject(array, callback) {
 	if (!isArrayAndCallback(array, callback)) return;
 
-	array.forEach(callback);
+	array.forEach((item, index, array) => callback(item, index, array));
 }
 
 /**
