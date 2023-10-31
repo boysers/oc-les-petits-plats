@@ -12,8 +12,6 @@ import { MIN_KEYWORD_LENGTH } from "../constants";
 
 /** @typedef {import('../models/Recipe').Recipe} Recipe */
 
-/** @typedef {TagList & {keyword: string}} RecipeFilterOptions */
-
 export class RecipeFilter {
 	#recipes;
 
