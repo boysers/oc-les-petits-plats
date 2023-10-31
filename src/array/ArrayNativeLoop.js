@@ -66,6 +66,18 @@ export default class ArrayNativeLoop extends Array {
 		return false;
 	}
 
+	/**
+	 * @template T
+	 * @param {T} target - The target object to be updated
+	 * @param {T} source - The source object containing new values
+	 * @returns {void}
+	 */
+	static updateObject(target, source) {
+		for (let [key, value] of Object.entries(source)) {
+			target[key] = value;
+		}
+	}
+
 	// static get [Symbol.species]() {
 	// 	return Array;
 	// }

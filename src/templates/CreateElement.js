@@ -1,29 +1,26 @@
 "use strict";
 
-import { Adapter } from "../adapter";
+import { ArrayAdapter } from "../adapter";
 import { createElement } from "../utils/createElement";
 
 export class CreateElement {
-	/** @param {Adapter} adapter */
-	constructor(adapter = new Adapter()) {
-		this._updateObject = adapter.updateObject;
+	#classes;
+	#attributes;
+	#children;
 
-		/** @type {Array<string>} */
-		this._classes = [];
-
-		/** @type {Record<string, string>} */
-		this._attributes = {};
-
-		/** @type {Array<string | number | Node | Node[]>} */
-		this._children = [];
+	constructor() {
+		this.#classes = new ArrayAdapter();
+		this.#attributes = {};
+		this.#children = new ArrayAdapter();
 	}
 
 	/**
-	 * @param {Array<string>} classes
+	 * @param {ArrayAdapter<string>} classes
 	 * @returns {this}
 	 */
 	addClasses(...classes) {
-		this._classes.push(...classes);
+		this.#classes.push(...classes);
+
 		return this;
 	}
 
@@ -32,7 +29,8 @@ export class CreateElement {
 	 * @returns {this}
 	 */
 	addAttributes(attributes) {
-		this._updateObject(this._attributes, attributes);
+		ArrayAdapter.updateObject(this.#attributes, attributes);
+
 		return this;
 	}
 
@@ -41,7 +39,8 @@ export class CreateElement {
 	 * @returns {this}
 	 */
 	addChildren(...children) {
-		this._children.push(...children);
+		this.#children.push(...children);
+
 		return this;
 	}
 
@@ -55,10 +54,10 @@ export class CreateElement {
 			tagname,
 			{
 				id: this._id,
-				classes: this._classes,
-				attributes: this._attributes,
+				classes: this.#classes,
+				attributes: this.#attributes,
 			},
-			...this._children
+			...this.#children
 		);
 
 		return element;
