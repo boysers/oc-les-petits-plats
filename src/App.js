@@ -1,27 +1,27 @@
 "use strict";
 
-import { Adapter } from "./adapter";
-import { recipes } from "./data/recipes";
-import { Recipe } from "./models/Recipe";
+import { ArrayAdapter } from "./adapter";
+import { recipes as dataRecipes } from "./data/recipes";
+import { createRecipeInstance } from "./models/Recipe";
 import { SearchRecipeForm } from "./templates/SearchRecipeForm";
 
 class App {
-	/** @param {Array<import('./models/Recipe').TRecipe>} recipes */
-	constructor(recipes, adapter = new Adapter()) {
-		this._recipes = adapter.mapArray(recipes, (recipe) =>
-			Recipe.createRecipe(recipe)
-		);
+	#recipes;
+
+	constructor() {
+		const recipes = new ArrayAdapter(...dataRecipes);
+		this.#recipes = recipes.map((recipe) => createRecipeInstance(recipe));
 	}
 
-	_main() {
-		const FilterRecipes = new SearchRecipeForm(this._recipes);
-		FilterRecipes.render();
+	#main() {
+		const searchRecipeForm = new SearchRecipeForm(this.#recipes);
+		searchRecipeForm.render();
 	}
 
 	render() {
-		this._main();
+		this.#main();
 	}
 }
 
-const app = new App(recipes);
+const app = new App();
 app.render();

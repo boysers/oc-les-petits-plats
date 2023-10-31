@@ -54,8 +54,8 @@ export class RecipeFilter {
 			recipe.name.toLowerCase().includes(keyword) ||
 			recipe.description.toLowerCase().includes(keyword) ||
 			recipe.appliance.includes(keyword) ||
-			this._someInArray(recipe.ingredients, ({ ingredient }) =>
-				ingredient.includes(keyword)
+			this._someInArray(recipe.ingredients, ({ name }) =>
+				name.includes(keyword)
 			) ||
 			this._someInArray(recipe.ustensils, (ustensil) =>
 				ustensil.includes(keyword)
@@ -74,8 +74,8 @@ export class RecipeFilter {
 			keyword.length < MIN_KEYWORD_LENGTH ||
 			recipe.name.toLowerCase().includes(keyword) ||
 			recipe.description.toLowerCase().includes(keyword) ||
-			this._someInArray(recipe.ingredients, ({ ingredient }) =>
-				ingredient.includes(keyword)
+			this._someInArray(recipe.ingredients, ({ name }) =>
+				name.includes(keyword)
 			)
 		);
 	}
@@ -98,7 +98,7 @@ export class RecipeFilter {
 		if (ingredients.length === 0) return true;
 
 		const uniqueIngredients = new Set(
-			this._mapArray(recipe.ingredients, ({ ingredient }) => ingredient)
+			this._mapArray(recipe.ingredients, ({ name }) => name)
 		);
 
 		return this._areItemsMatch(uniqueIngredients, ingredients);
@@ -143,8 +143,8 @@ export class RecipeFilter {
 			this._foreach(recipe.ustensils, (ustensil) =>
 				uniqueUstensils.add(ustensil)
 			);
-			this._foreach(recipe.ingredients, ({ ingredient }) =>
-				uniqueIngredients.add(ingredient)
+			this._foreach(recipe.ingredients, ({ name }) =>
+				uniqueIngredients.add(name)
 			);
 		});
 

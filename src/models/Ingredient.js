@@ -1,42 +1,44 @@
 "use strict";
 
-/**
- * @typedef {Object} TIngredient
- * @property {string} ingredient
- * @property {number} [quantity]
- * @property {string} [unit]
- */
-
 /** Ingredient Model */
 export class Ingredient {
+	#ingredient;
+	#quantity;
+	#unit;
+
 	/**
-	 * @param {TIngredient} dataIngredient
-	 * @returns {Ingredient}
+	 * @param {import('../types').TIngredient} ingredient
 	 */
-	static createIngredient(dataIngredient) {
-		if (!dataIngredient.ingredient) {
-			throw new Error(`The ingredient key is required`);
-		}
-
-		return new Ingredient(dataIngredient);
-	}
-
-	/** @param {TIngredient} ingredient  */
 	constructor(ingredient) {
-		this._ingredient = ingredient.ingredient;
-		this._quantity = ingredient.quantity;
-		this._unit = ingredient.unit;
+		this.#ingredient = ingredient.ingredient;
+		this.#quantity = ingredient.quantity;
+		this.#unit = ingredient.unit;
 	}
 
-	get ingredient() {
-		return this._ingredient.toLowerCase();
+	get name() {
+		return this.#ingredient.toLowerCase();
 	}
 
 	get quantity() {
-		return this._quantity;
+		return this.#quantity;
 	}
 
 	get unit() {
-		return this._unit;
+		return this.#unit;
 	}
+}
+
+/**
+ * Function to create an instance of ingredient.
+ * @param {import('../types').TIngredient} dataIngredient
+ * @returns {Ingredient}
+ */
+export function createIngredientInstance(dataIngredient) {
+	if (!dataIngredient.ingredient) {
+		throw new Error(`The ingredient key is required`);
+	}
+
+	const ingredient = new Ingredient(dataIngredient);
+
+	return ingredient;
 }

@@ -1,100 +1,98 @@
 "use strict";
 
-import { Adapter } from "../adapter";
+import { ArrayAdapter } from "../adapter";
 import { BASE_URL } from "../constants";
-import { Ingredient } from "./Ingredient";
-
-/**
- * @typedef {Object} TRecipe
- * @property {number} id
- * @property {string} image
- * @property {string} name
- * @property {number} servings
- * @property {Array<Ingredient>} ingredients
- * @property {number} time
- * @property {string} description
- * @property {string} appliance
- * @property {Array<string>} ustensils
- */
+import { createIngredientInstance } from "./Ingredient";
 
 /** Recipe Model */
 export class Recipe {
-	/**
-	 * @param {TRecipe} recipe
-	 * @param {Adapter} adapter
-	 * @returns {Recipe}
-	 */
-	static createRecipe(recipe, adapter = new Adapter()) {
-		return new Recipe(recipe, adapter);
-	}
+	#id;
+	#image;
+	#name;
+	#servings;
+	#ingredients;
+	#time;
+	#description;
+	#appliance;
+	#ustensils;
 
 	/**
-	 * @param {TRecipe} recipe
-	 * @param {Adapter} adapter
+	 * @param {import('../types').TRecipe} recipe
 	 */
-	constructor(recipe, adapter = new Adapter()) {
-		this._mapArray = adapter.mapArray;
-
-		this._id = recipe.id;
-		this._image = recipe.image;
-		this._name = recipe.name;
-		this._servings = recipe.servings;
-		this._ingredients = recipe.ingredients;
-		this._time = recipe.time;
-		this._description = recipe.description;
-		this._appliance = recipe.appliance;
-		this._ustensils = recipe.ustensils;
+	constructor(recipe) {
+		this.#id = recipe.id;
+		this.#image = recipe.image;
+		this.#name = recipe.name;
+		this.#servings = recipe.servings;
+		this.#ingredients = recipe.ingredients;
+		this.#time = recipe.time;
+		this.#description = recipe.description;
+		this.#appliance = recipe.appliance;
+		this.#ustensils = recipe.ustensils;
 	}
 
-	_formatTime() {
-		return `${this._time}min`;
+	#formatTime() {
+		return `${this.#time}min`;
 	}
 
-	_getImageUrl() {
+	#createImageUrl() {
 		const { href } = new URL(
-			`${BASE_URL}recipe-photos/${this._image}`,
+			`${BASE_URL}recipe-photos/${this.#image}`,
 			document.location
 		);
+
 		return href;
 	}
 
 	get id() {
-		return this._id;
+		return this.#id;
 	}
 
 	get image() {
-		return this._getImageUrl();
+		return this.#createImageUrl();
 	}
 
 	get name() {
-		return this._name;
+		return this.#name;
 	}
 
 	get servings() {
-		return this._servings;
+		return this.#servings;
 	}
 
 	get ingredients() {
-		return this._mapArray(this._ingredients, (ingredient) =>
-			Ingredient.createIngredient(ingredient)
+		const ingredients = new ArrayAdapter(...this.#ingredients);
+
+		return ingredients.map((ingredient) =>
+			createIngredientInstance(ingredient)
 		);
 	}
 
 	get time() {
-		return this._formatTime();
+		return this.#formatTime();
 	}
 
 	get description() {
-		return this._description;
+		return this.#description;
 	}
 
 	get appliance() {
-		return this._appliance.toLowerCase();
+		return this.#appliance.toLowerCase();
 	}
 
 	get ustensils() {
-		return this._mapArray(this._ustensils, (ustensil) =>
-			ustensil.toLowerCase()
-		);
+		const ustensils = new ArrayAdapter(...this.#ustensils);
+
+		return ustensils.map((ustensil) => ustensil.toLowerCase());
 	}
+}
+
+/**
+ * @param {import('../types').TRecipe} dataRecipe
+ * @returns {Recipe}
+ */
+export function createRecipeInstance(dataRecipe) {
+	const recipe = new Recipe(dataRecipe);
+
+	return recipe;
 }

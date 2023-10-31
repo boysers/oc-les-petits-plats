@@ -13,7 +13,7 @@ import { TagMenu } from "./TagMenu";
 
 /** Search recipe form template */
 export class SearchRecipeForm {
-	/** 
+	/**
 	 * @param {Array<Recipe>} recipes
 	 * @param {Adapter} adapter
 	 */
@@ -86,10 +86,7 @@ export class SearchRecipeForm {
 	_filterWithKeyword(recipe) {
 		const { name, description, appliance, ingredients, ustensils } = recipe;
 
-		const ingredientTexts = this._mapArray(
-			ingredients,
-			({ ingredient }) => ingredient
-		);
+		const ingredientTexts = this._mapArray(ingredients, ({ name }) => name);
 
 		return this._someInArray(
 			[name, description, appliance, ...ustensils, ...ingredientTexts],
@@ -199,8 +196,8 @@ export class SearchRecipeForm {
 			this._foreach(recipe.ustensils, (ustensil) =>
 				ustensils.add(ustensil)
 			);
-			this._foreach(recipe.ingredients, ({ ingredient }) =>
-				ingredients.add(ingredient)
+			this._foreach(recipe.ingredients, ({ name }) =>
+				ingredients.add(name)
 			);
 
 			this._recipesWrapper.appendChild(card.create());

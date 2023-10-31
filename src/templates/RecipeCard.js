@@ -38,7 +38,7 @@ export class RecipeCard {
 	 * @returns {HTMLDivElement}
 	 */
 	_createIngredientEl(ingredient) {
-		const { ingredient: name, unit, quantity: qty } = ingredient;
+		const { name, unit, quantity: qty } = ingredient;
 
 		const ingredientElement = new CreateElement()
 			.addClasses("subtitle1")

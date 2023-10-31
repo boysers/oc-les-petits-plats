@@ -7,6 +7,8 @@ import { mapArrayObject } from "../utils/mapArray";
 import { someInArrayObject } from "../utils/someInArray";
 import { updateObjectArrayObject } from "../utils/updateObject";
 
+export { default as ArrayAdapter } from "./ArrayAdapter";
+
 export class Adapter {
 	/**
 	 * @template O, T
