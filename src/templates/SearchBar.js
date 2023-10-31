@@ -1,6 +1,6 @@
 "use strict";
 
-import { Adapter } from "../adapter";
+import { ArrayAdapter } from "../adapter";
 import { CreateElement } from "./CreateElement";
 
 /**
@@ -9,40 +9,33 @@ import { CreateElement } from "./CreateElement";
  */
 
 export class SearchBar {
-	constructor(adapter = new Adapter()) {
-		/** @type {Record<EventType, Array<(event: Event | FormDataEvent) => void>>} */
-		this._listeners = {
-			input: [],
-			submit: [],
-			click: [],
-		};
+	/** @type {Record<EventType, ArrayAdapter<(event: Event | FormDataEvent) => void>>} */
+	#listeners;
 
-		/** @type {string | undefined} */
-		this._placeholder;
+	/** @type {string | undefined} */
+	#placeholder;
 
-		/**
-		 * @param {EventType} type
-		 * @param {Event | FormDataEvent} e
-		 * @returns {void}
-		 */
-		this._foreachListeners = (type, e) => {
-			adapter.foreach(this._listeners[type], (listener) => listener(e));
+	constructor() {
+		this.#listeners = {
+			input: new ArrayAdapter(),
+			submit: new ArrayAdapter(),
+			click: new ArrayAdapter(),
 		};
 	}
 
-	_createInputEl() {
+	#createInputEl() {
 		const input = new CreateElement()
 			.addClasses("search-bar__input")
 			.create("input");
 
-		if (this._placeholder) {
-			input.placeholder = this._placeholder;
+		if (this.#placeholder) {
+			input.placeholder = this.#placeholder;
 		}
 
 		return input;
 	}
 
-	_createCloseButton() {
+	#createCloseButton() {
 		const closeButton = new CreateElement()
 			.addClasses("fa-solid", "fa-xmark", "close", "hidden")
 			.create("i");
@@ -60,7 +53,7 @@ export class SearchBar {
 		return closeButton;
 	}
 
-	_createSearchButton() {
+	#createSearchButton() {
 		const searchIcon = new CreateElement()
 			.addClasses("fa-solid", "fa-magnifying-glass")
 			.create("i");
@@ -74,70 +67,51 @@ export class SearchBar {
 	}
 
 	/**
-	 * @param {HTMLInputElement} input
-	 * @param {(event: Event) => void} callback
+	 *
+	 * @param {EventType} type
+	 * @param {HTMLInputElement | HTMLFormElement | HTMLButtonElement} element
+	 * @param {(event: Event | FormDataEvent) => void} callback
+	 * @returns {void}
 	 */
-	_initOnInput(input, callback) {
-		input.addEventListener("input", (event) => {
+	#initOnEvent(type, element, callback) {
+		element.addEventListener(type, (event) => {
 			callback instanceof Function && callback(event);
-			this._foreachListeners("input", event);
-		});
-	}
-
-	/**
-	 * @param {HTMLInputElement} form
-	 * @param {(event: FormDataEvent) => void} [callback]
-	 */
-	_initOnSubmit(form, callback) {
-		form.addEventListener("submit", (event) => {
-			callback instanceof Function && callback(event);
-			this._foreachListeners("submit", event);
-		});
-	}
-
-	/**
-	 * @param {HTMLInputElement} form
-	 * @param {(event: Event) => void} [callback]
-	 */
-	_initOnClick(cto, callback) {
-		cto.addEventListener("click", (event) => {
-			callback instanceof Function && callback(event);
-			this._foreachListeners("click", event);
+			this.#listeners[type].forEach((listener) => listener(event));
 		});
 	}
 
 	/**
 	 * Added an event listener.
 	 * @param {EventType} type
-	 * @param {(event: Event) => void} callback
+	 * @param {(event: Event | FormDataEvent) => void} callback
 	 * @returns {void}
 	 */
 	addEventListener(type, callback) {
-		this._listeners[type].push(callback);
+		this.#listeners[type].push(callback);
 	}
 
 	/** @param {string} */
 	set placeholder(value) {
-		this._placeholder = value;
+		this.#placeholder = value;
 	}
 
 	get placeholder() {
-		return this._placeholder;
+		return this.#placeholder;
 	}
 
 	create() {
 		const inputEvent = new Event("input");
 
-		const inputEl = this._createInputEl();
-		const searchBtn = this._createSearchButton();
-		const closeEl = this._createCloseButton();
+		const inputEl = this.#createInputEl();
+		const searchBtn = this.#createSearchButton();
+		const closeEl = this.#createCloseButton();
 
-		const formControl = new CreateElement()
+		const formEl = new CreateElement()
 			.addChildren(inputEl, searchBtn, closeEl)
 			.addClasses("search-bar")
 			.create("form");
 
-		this._initOnInput(inputEl, (e) => {
+		this.#initOnEvent("input", inputEl, (e) => {
 			const isTarget = e.target instanceof HTMLInputElement;
 			if (!isTarget) return;
 
@@ -148,9 +122,9 @@ export class SearchBar {
 			closeEl.classList.remove("hidden");
 		});
 
-		this._initOnSubmit(formControl, (e) => e.preventDefault());
+		this.#initOnEvent("submit", formEl, (e) => e.preventDefault());
 
-		this._initOnClick(closeEl, (e) => {
+		this.#initOnEvent("click", closeEl, (e) => {
 			if (closeEl !== e.target) return;
 
 			inputEl.value = "";
@@ -158,6 +132,6 @@ export class SearchBar {
 			inputEl.focus();
 		});
 
-		return formControl;
+		return formEl;
 	}
 }

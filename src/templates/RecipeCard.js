@@ -1,46 +1,30 @@
 "use strict";
 
-import { Adapter } from "../adapter";
 import { capitalizeFirstLetter } from "../utils/capitalizeFirstLetter";
 import { CreateElement } from "./CreateElement";
 
-/** @typedef {import('../models/Recipe').Recipe} Recipe */
-
-/** @typedef {import('../models/Ingredient').Ingredient} Ingredient */
-
 export class RecipeCard {
+	/** @type {HTMLElement | undefined} */
+	#card;
+	#recipe;
+
 	/**
-	 * @param {Recipe} recipe
-	 * @param {Adapter} adapter
+	 * @param {import('../models/Recipe').Recipe} recipe
 	 */
-	constructor(recipe, adapter = new Adapter()) {
-		this._recipe = recipe;
-
-		/**
-		 * @template T
-		 * @param {(item: Ingredient, index: number, array: Array<Ingredient>) => T} callback
-		 * @returns {T[]}
-		 */
-		this._mapIngredients = (callback) => {
-			return adapter.mapArray(this._recipe.ingredients, callback);
-		};
-
-		/** @type {HTMLElement | undefined} */
-		this._card;
-	}
-
-	get recipe() {
-		return this._recipe;
+	constructor(recipe) {
+		this.#recipe = recipe;
 	}
 
 	/**
-	 * @param {Ingredient} ingredient
+	 * @param {import('../models/Ingredient').Ingredient} ingredient
 	 * @returns {HTMLDivElement}
 	 */
-	_createIngredientEl(ingredient) {
+	#createIngredientEl(ingredient) {
 		const { name, unit, quantity: qty } = ingredient;
 
-		const ingredientElement = new CreateElement()
+		const ingredientWrapper = new CreateElement();
+
+		const nameElement = new CreateElement()
 			.addClasses("subtitle1")
 			.addChildren(capitalizeFirstLetter(name))
 			.create("p");
@@ -50,28 +34,27 @@ export class RecipeCard {
 			.addChildren(qty ? (unit ? `${qty} ${unit}` : qty) : null)
 			.create("p");
 
-		return new CreateElement()
-			.addChildren(ingredientElement, quantityElement)
+		return ingredientWrapper
+			.addChildren(nameElement, quantityElement)
 			.create("div");
 	}
 
-	/**
-	 * @param {Array<Ingredient>} ingredients
-	 * @returns {HTMLDivElement}
-	 */
-	_createIngredientsWrapper() {
-		const ingredientEls = this._mapIngredients((ingredient) =>
-			this._createIngredientEl(ingredient)
+	#createIngredientsWrapper() {
+		const ingredientList = new CreateElement();
+		ingredientList.addClasses("recipe-card__ingredients-wrapper");
+
+		const ingredientEls = this.#recipe.ingredients.map((ingredient) =>
+			this.#createIngredientEl(ingredient)
 		);
 
-		return new CreateElement()
-			.addChildren(ingredientEls)
-			.addClasses("recipe-card__ingredients-wrapper")
-			.create("div");
+		return ingredientList.addChildren(ingredientEls).create("div");
 	}
 
-	_createInfoEl() {
-		const { name, description, ingredients } = this._recipe;
+	#createInfoEl() {
+		const { name, description, ingredients } = this.#recipe;
+
+		const infoWrapper = new CreateElement();
+		infoWrapper.addClasses("recipe-card__info-wrapper");
 
 		const nameEl = new CreateElement()
 			.addChildren(name)
@@ -94,10 +77,9 @@ export class RecipeCard {
 			.addClasses("recipe-card__subtitle2")
 			.create("h4");
 
-		const ingredientsWrapper = this._createIngredientsWrapper(ingredients);
+		const ingredientsWrapper = this.#createIngredientsWrapper(ingredients);
 
-		return new CreateElement()
-			.addClasses("recipe-card__info-wrapper")
+		return infoWrapper
 			.addChildren(
 				nameEl,
 				titleRecetteEl,
@@ -108,21 +90,22 @@ export class RecipeCard {
 			.create("div");
 	}
 
-	_createCard() {
-		const { image, name, time } = this._recipe;
+	#createCard() {
+		const { image, name, time } = this.#recipe;
+
+		const cardEl = new CreateElement();
+		cardEl
+			.addClasses("recipe-card", "recipe-card-wrapper")
+			.addAttributes({ "data-time": time, "aria-hidden": "false" });
 
 		const imgEl = new CreateElement()
 			.addAttributes({ src: image, alt: name })
 			.addClasses("recipe-card__image")
 			.create("img");
 
-		const infoEl = this._createInfoEl();
+		const infoEl = this.#createInfoEl();
 
-		return new CreateElement()
-			.addClasses("recipe-card", "recipe-card-wrapper")
-			.addAttributes({ "data-time": time, "aria-hidden": "false" })
-			.addChildren(imgEl, infoEl)
-			.create("article");
+		return cardEl.addChildren(imgEl, infoEl).create("article");
 	}
 
 	/**
@@ -130,14 +113,21 @@ export class RecipeCard {
 	 * @returns {this}
 	 */
 	setHidden(hidden) {
-		if (!this._card && this._card.hidden !== hidden) return;
-		this._card.hidden = hidden;
-		this._card.setAttribute("aria-hidden", hidden ? "true" : "false");
+		if (!this.#card && this.#card.hidden !== hidden) return;
+
+		this.#card.hidden = hidden;
+		this.#card.setAttribute("aria-hidden", hidden ? "true" : "false");
+
 		return this;
 	}
 
+	get recipe() {
+		return this.#recipe;
+	}
+
 	create() {
-		this._card = this._createCard();
-		return this._card;
+		this.#card = this.#createCard();
+
+		return this.#card;
 	}
 }

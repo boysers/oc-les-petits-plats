@@ -4,16 +4,17 @@ import { capitalizeFirstLetter } from "../utils/capitalizeFirstLetter";
 import { CreateElement } from "./CreateElement";
 
 export class TagCard {
+	/** @type {HTMLElement | undefined} */
+	#tagCard;
+	#tagname;
+
 	/** @param {string} tag */
 	constructor(tag) {
-		this._tagname = tag;
-
-		/** @type {HTMLElement | undefined} */
-		this._tagCard;
+		this.#tagname = tag;
 	}
 
 	get tagname() {
-		return this._tagname;
+		return this.#tagname;
 	}
 
 	/**
@@ -21,18 +22,17 @@ export class TagCard {
 	 * @returns {this}
 	 */
 	setHidden(hidden) {
-		if (!this._tagCard && this._tagCard?.hidden !== hidden) return;
-		this._tagCard.hidden = hidden;
-		this._tagCard.setAttribute("aria-hidden", hidden ? "true" : "false");
+		if (!this.#tagCard && this.#tagCard?.hidden !== hidden) return;
+		this.#tagCard.hidden = hidden;
+		this.#tagCard.setAttribute("aria-hidden", hidden ? "true" : "false");
 		return this;
 	}
 
-	/** @returns {HTMLElement} */
 	create() {
-		this._tagCard = new CreateElement()
-			.addChildren(capitalizeFirstLetter(this._tagname))
+		this.#tagCard = new CreateElement()
+			.addChildren(capitalizeFirstLetter(this.#tagname))
 			.create("p");
 
-		return this._tagCard;
+		return this.#tagCard;
 	}
 }
