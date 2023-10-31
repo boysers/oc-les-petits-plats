@@ -1,6 +1,6 @@
 "use strict";
 
-import { Adapter } from "../adapter";
+import { ArrayAdapter } from "../adapter";
 import { capitalizeFirstLetter } from "../utils/capitalizeFirstLetter";
 import { cleanAndNormalizeString } from "../utils/normalizeString";
 import { CreateElement } from "./CreateElement";
@@ -13,87 +13,94 @@ import { TagCard } from "./TagCard";
  */
 
 export class TagMenu {
-	/** 
-	 * @param {Array<string>} tags
+	/** @type {HTMLElement | undefined} */
+	#tagMenu;
+
+	#keyword;
+
+	#tags;
+
+	/** @type {ArrayAdapter<string>} */
+	#hiddenTags;
+
+	/** @type {HTMLElement} */
+	#button;
+
+	#tagCards;
+
+	/** @type {Set<string>} */
+	#activeTags;
+
+	/** @type {Record<EventType, ArrayAdapter<(event: Event) => void | (event: Event, activeTags: ArrayAdapter<string>) => void>>} */
+	#listeners;
+
+	#eventActiveTags;
+
+	/** @type {HTMLInputElement | undefined} */
+	#input;
+
+	/** @type {HTMLElement} */
+	#tagActiveListWrapper;
+
+	/**
+	 * @param {ArrayAdapter<string>} tags
 	 * @param {Adapter} adapter
 	 */
-	constructor(tags, adapter = new Adapter()) {
-		this._mapArray = adapter.mapArray;
-		this._someInArray = adapter.someInArray;
-		this._foreach = adapter.foreach;
+	constructor(tags) {
+		this.#keyword = "";
 
-		/** @type {HTMLElement | undefined} */
-		this._tagMenu;
+		this.#tags = new ArrayAdapter(...tags);
 
-		this._keyword = "";
+		this.#hiddenTags = new ArrayAdapter();
 
-		this._tags = tags;
+		this.#tagCards = this.#tags.map((tag) => new TagCard(tag));
 
-		/** @type {Array<string>} */
-		this._hiddenTags = [];
+		this.#activeTags = new Set();
 
-		/** @type {HTMLElement} */
-		this._button;
-
-		this._tagCards = adapter.instantiateObjects(this._tags, TagCard);
-
-		/** @type {Set<string>} */
-		this._activeTags = new Set();
-
-		/**
-		 * @param {(item: string, index: number, array: Array<string> ) => void} callback
-		 */
-		this._forEachTag = (callback) => {
-			adapter.foreach(this._tags, callback);
+		this.#listeners = {
+			click: new ArrayAdapter(),
 		};
 
-		/**
-		 * @param {(item: TagCard, index: number, array: Array<TagCard> ) => void} callback
-		 */
-		this._forEachTagCards = (callback) => {
-			adapter.foreach(this._tagCards, callback);
-		};
-
-		/** @type {Record<EventType, Array<(event: Event) => void | (event: Event, activeTags: Array<string>) => void>>} */
-		this._listeners = {
-			click: [],
-		};
-
-		this._eventActiveTags = new CustomEvent("active-tags", {
-			detail: { tags: [...this._activeTags] },
+		this.#eventActiveTags = new CustomEvent("active-tags", {
+			detail: { tags: new ArrayAdapter(...this.#activeTags) },
 		});
+
+		this.#tagActiveListWrapper = document.querySelector(
+			".tag-controls__tag-active-list"
+		);
 	}
 
-	_filterTagCards() {
-		const uniqueTags = new Set(this._hiddenTags);
+	#filterTagCards() {
+		const uniqueTags = new Set(this.#hiddenTags);
 
-		this._foreach(this._tags, (tag, index) => {
+		this.#tags.forEach((tag, index) => {
 			const shouldHide =
-				!tag.includes(this._keyword) ||
-				this._activeTags.has(tag) ||
+				!tag.includes(this.#keyword) ||
+				this.#activeTags.has(tag) ||
 				!uniqueTags.has(tag);
 
-			this._tagCards[index].setHidden(shouldHide);
+			this.#tagCards[index].setHidden(shouldHide);
 		});
 	}
 
-	_updateActiveTags() {
-		this._eventActiveTags.detail.tags = Array.from(this._activeTags);
-		this._tagMenu.dispatchEvent(this._eventActiveTags);
+	#updateActiveTags() {
+		this.#eventActiveTags.detail.tags = ArrayAdapter.from(this.#activeTags);
+		this.#tagMenu.dispatchEvent(this.#eventActiveTags);
 	}
 
 	/**
-	 * @param {HTMLInputElement} element
+	 * @param {HTMLElement} element
 	 * @param {(event: Event) => void} [callback]
+	 * @returns {void}
 	 */
-	_initOnClick(element, callback) {
-		element.addEventListener("click", (e) => {
-			callback instanceof Function && callback(e);
-			this._listeners["click"].forEach((listener) => listener(e));
+	#initOnClick(element, callback) {
+		element.addEventListener("click", (event) => {
+			callback instanceof Function && callback(event);
+			this.#listeners["click"].forEach((listener) => listener(event));
 		});
 	}
 
-	_createSearchBar() {
+	#createSearchBar() {
 		const searchBar = new SearchBar();
 
 		searchBar.addEventListener("input", (e) => {
@@ -102,96 +109,190 @@ export class TagMenu {
 
 			const value = e.target.value;
 
-			this._keyword = cleanAndNormalizeString(value.toLowerCase());
+			this.#keyword = cleanAndNormalizeString(value.toLowerCase());
 
-			this._filterTagCards();
+			this.#filterTagCards();
 		});
 
 		return searchBar.create();
 	}
 
 	/**
-	 * @param {string} value
+	 * @param {string} name
 	 * @param {HTMLElement} collapseEl
-	 * @param {HTMLElement} searchBar
+	 * @param {HTMLElement} searchBarEl
 	 * @returns {HTMLElement}
 	 */
-	_createButton(value, collapseEl, searchBar) {
+	#createButton(name, collapseEl, searchBarEl) {
+		this.#input = searchBarEl.querySelector("input");
+
 		let isOpen = false;
 
-		this._input = searchBar.querySelector("input");
+		const nameEl = new CreateElement().addChildren(name).create("p");
 
-		const chevron = new CreateElement()
+		const chevronEl = new CreateElement()
 			.addClasses("fa-solid", "fa-chevron-down")
 			.create("i");
 
 		const button = new CreateElement()
-			.addChildren(
-				new CreateElement().addChildren(value).create("p"),
-				chevron
-			)
+			.addChildren(nameEl, chevronEl)
 			.addClasses("tag-menu__button")
 			.create("div");
 
-		const handleButtonClick = () => {
+		const handleClickButton = () => {
 			if (isOpen) {
 				isOpen = false;
 
-				chevron.classList.remove("fa-chevron-up");
-				chevron.classList.add("fa-chevron-down");
+				chevronEl.classList.remove("fa-chevron-up");
+				chevronEl.classList.add("fa-chevron-down");
 
 				collapseEl.classList.remove("tag-menu__collapse--open");
 
-				this._tagMenu.classList.remove("open");
+				this.#tagMenu.classList.remove("open");
 
-				this._input.value = "";
-				this._keyword = "";
-				this._filterTagCards();
+				if (this.#input) {
+					this.#input.value = "";
+				}
+
+				this.#keyword = "";
+				this.#filterTagCards();
 				return;
 			}
 			isOpen = true;
 
-			this._tagMenu.classList.add("open");
+			this.#tagMenu?.classList.add("open");
 
-			chevron.classList.add("fa-chevron-up");
-			chevron.classList.remove("fa-chevron-down");
+			chevronEl.classList.add("fa-chevron-up");
+			chevronEl.classList.remove("fa-chevron-down");
 
 			collapseEl.classList.add("tag-menu__collapse--open");
 
-			this._input.focus();
+			this.#input?.focus();
 		};
 
 		button.addEventListener("close", () => {
-			if (isOpen) handleButtonClick();
+			if (isOpen) handleClickButton();
 		});
 
-		button.addEventListener("click", handleButtonClick);
+		button.addEventListener("click", handleClickButton);
 
 		return button;
 	}
 
+	/**
+	 * @param {TagCard} card
+	 * @param {number} index
+	 * @param {HTMLDivElement} tagList
+	 * @param {HTMLDivElement} tagListActive
+	 * @returns {void}
+	 */
+	#initTagCardEvent(card, index, tagList, tagListActive) {
+		let active = false;
+
+		const cardEl = card.create();
+		const tagname = this.#tags[index];
+
+		tagList.appendChild(cardEl);
+
+		const closeEl = new CreateElement()
+			.addClasses("fa-solid", "fa-circle-xmark", "close", "hidden")
+			.create("i");
+
+		const tagActive = new CreateElement()
+			.addChildren(capitalizeFirstLetter(tagname), closeEl)
+			.addClasses("active-tag")
+			.create("p");
+
+		// ----------------------------
+
+		const labelName = new CreateElement()
+			.addChildren(capitalizeFirstLetter(tagname))
+			.addClasses("active-card__name")
+			.create("p");
+
+		const labelCloseBtn = new CreateElement()
+			.addClasses("fa-solid", "fa-xmark", "close", "active-card__btn")
+			.create("i");
+
+		const label = new CreateElement()
+			.addChildren(labelName, labelCloseBtn)
+			.addClasses("active-card")
+			.create("div");
+
+		labelCloseBtn.addEventListener("mouseenter", () => {
+			labelCloseBtn.classList.remove("fa-xmark");
+			labelCloseBtn.classList.add("fa-circle-xmark");
+		});
+
+		labelCloseBtn.addEventListener("mouseleave", () => {
+			labelCloseBtn.classList.add("fa-xmark");
+			labelCloseBtn.classList.remove("fa-circle-xmark");
+		});
+
+		labelCloseBtn.addEventListener("click", () => {
+			if (!active) return;
+
+			this.#activeTags.delete(tagname);
+			tagActive.remove();
+			label.remove();
+
+			this.#filterTagCards();
+
+			active = false;
+
+			this.#updateActiveTags();
+		});
+
+		closeEl.addEventListener("click", () => {
+			if (!active) return;
+
+			this.#activeTags.delete(tagname);
+			tagActive.remove();
+			label.remove();
+
+			this.#filterTagCards();
+
+			active = false;
+
+			this.#updateActiveTags();
+		});
+
+		cardEl.addEventListener("click", () => {
+			if (active) return;
+
+			this.#activeTags.add(tagname);
+			tagListActive.appendChild(tagActive);
+			this.#tagActiveListWrapper.appendChild(label);
+
+			this.#filterTagCards();
+
+			active = true;
+
+			this.#updateActiveTags();
+		});
+	}
+
 	get button() {
-		return this._button;
+		return this.#button;
 	}
 
 	get input() {
-		return this._input;
+		return this.#input;
 	}
 
 	get activeTags() {
-		return this._activeTags;
+		return this.#activeTags;
 	}
 
-	/** @param {Array<string>} activeTags */
+	/** @param {ArrayAdapter<string>} activeTags */
 	set activeTags(activeTags) {
-		this._activeTags = new Set(activeTags);
-		// this._filterTagCards();
+		this.#activeTags = new Set(activeTags);
 	}
 
-	/** @param {Array<string>} hiddenTags */
+	/** @param {ArrayAdapter<string>} hiddenTags */
 	setHiddenTags(hiddenTags) {
-		this._hiddenTags = hiddenTags;
-		this._filterTagCards();
+		this.#hiddenTags = hiddenTags;
+		this.#filterTagCards();
 	}
 
 	/**
@@ -201,18 +302,14 @@ export class TagMenu {
 	 * @returns {void}
 	 */
 	addEventListener(type, callback) {
-		this._listeners[type].push(callback);
+		this.#listeners[type].push(callback);
 	}
 
 	/**
-	 * @param {string} value
+	 * @param {string} name
 	 * @returns {HTMLElement}
 	 */
-	create(value) {
-		const tagActiveListEl = document.querySelector(
-			".tag-controls__tag-active-list"
-		);
-
+	create(name) {
 		const tagListActive = new CreateElement()
 			.addClasses("tag-menu__collapse__tag-list-active")
 			.create("div");
@@ -221,93 +318,11 @@ export class TagMenu {
 			.addClasses("tag-menu__collapse__tag-list")
 			.create("div");
 
-		this._forEachTagCards((card, index) => {
-			let active = false;
+		this.#tagCards.forEach((card, index) =>
+			this.#initTagCardEvent(card, index, tagList, tagListActive)
+		);
 
-			const cardEl = card.create();
-			const tagname = this._tags[index];
-
-			tagList.appendChild(cardEl);
-
-			const closeEl = new CreateElement()
-				.addClasses("fa-solid", "fa-circle-xmark", "close", "hidden")
-				.create("i");
-
-			const tagActive = new CreateElement()
-				.addChildren(capitalizeFirstLetter(tagname), closeEl)
-				.addClasses("active-tag")
-				.create("p");
-
-			// ----------------------------
-
-			const labelName = new CreateElement()
-				.addChildren(capitalizeFirstLetter(tagname))
-				.addClasses("active-card__name")
-				.create("p");
-
-			const labelCloseBtn = new CreateElement()
-				.addClasses("fa-solid", "fa-xmark", "close", "active-card__btn")
-				.create("i");
-
-			const label = new CreateElement()
-				.addChildren(labelName, labelCloseBtn)
-				.addClasses("active-card")
-				.create("div");
-
-			labelCloseBtn.addEventListener("mouseenter", () => {
-				labelCloseBtn.classList.remove("fa-xmark");
-				labelCloseBtn.classList.add("fa-circle-xmark");
-			});
-
-			labelCloseBtn.addEventListener("mouseleave", () => {
-				labelCloseBtn.classList.add("fa-xmark");
-				labelCloseBtn.classList.remove("fa-circle-xmark");
-			});
-
-			labelCloseBtn.addEventListener("click", () => {
-				if (!active) return;
-
-				this._activeTags.delete(tagname);
-				tagActive.remove();
-				label.remove();
-
-				this._filterTagCards();
-
-				active = false;
-
-				this._updateActiveTags();
-			});
-
-			closeEl.addEventListener("click", () => {
-				if (!active) return;
-
-				this._activeTags.delete(tagname);
-				tagActive.remove();
-				label.remove();
-
-				this._filterTagCards();
-
-				active = false;
-
-				this._updateActiveTags();
-			});
-
-			cardEl.addEventListener("click", () => {
-				if (active) return;
-
-				this._activeTags.add(tagname);
-				tagListActive.appendChild(tagActive);
-				tagActiveListEl.appendChild(label);
-
-				this._filterTagCards();
-
-				active = true;
-
-				this._updateActiveTags();
-			});
-		});
-
-		const searchBar = this._createSearchBar();
+		const searchBar = this.#createSearchBar();
 
 		const collapse = new CreateElement()
 			.addClasses("tag-menu__collapse")
@@ -319,13 +334,13 @@ export class TagMenu {
 			.addChildren(collapse)
 			.create("div");
 
-		this._button = this._createButton(value, collapse, searchBar);
+		this.#button = this.#createButton(name, collapse, searchBar);
 
-		this._tagMenu = new CreateElement()
-			.addChildren(this._button, collapseWrapper)
+		this.#tagMenu = new CreateElement()
+			.addChildren(this.#button, collapseWrapper)
 			.addClasses("tag-menu")
 			.create("div");
 
-		return this._tagMenu;
+		return this.#tagMenu;
 	}
 }
