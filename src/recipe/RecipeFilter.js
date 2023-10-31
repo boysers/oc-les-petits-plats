@@ -1,66 +1,37 @@
 "use strict";
 
-import { Adapter } from "../adapter";
+import { ArrayAdapter } from "../adapter";
 import { MIN_KEYWORD_LENGTH } from "../constants";
 
 /**
  * @typedef {Object} TagList
- * @property {Array<string>} ingredients
- * @property {Array<string>} ustensils
- * @property {Array<string>} appliances
+ * @property {ArrayAdapter<string>} ingredients
+ * @property {ArrayAdapter<string>} ustensils
+ * @property {ArrayAdapter<string>} appliances
  */
 
 /** @typedef {import('../models/Recipe').Recipe} Recipe */
 
+/** @typedef {TagList & {keyword: string}} RecipeFilterOptions */
+
 export class RecipeFilter {
+	#recipes;
+
 	/**
-	 * @param {Array<Recipe>} recipes
-	 * @param {Adapter} adapter
+	 * @param {ArrayAdapter<Recipe>} recipes
 	 */
-	constructor(recipes, adapter = new Adapter()) {
-		this._recipes = recipes;
-
-		this._foreach = adapter.foreach;
-		this._mapArray = adapter.mapArray;
-		this._someInArray = adapter.someInArray;
-
-		/**
-		 * @param {(value: Recipe, index: number, array: Array<Recipe>) => boolean} predicate
-		 * @returns {Array<Recipe>}
-		 */
-		this._filterRecipes = (predicate) => {
-			return adapter.filterArray(this._recipes, predicate);
-		};
+	constructor(recipes) {
+		this.#recipes = recipes;
 	}
 
 	/**
 	 *
-	 * @param {Set<string>} uniqueItems
-	 * @param {Array<string>} itemsToCheck
-	 */
-	_areItemsMatch(setItems, itemsToCheck) {
-		return this._someInArray(itemsToCheck, (item) => setItems.has(item));
-	}
-
-	/**
-	 * Match : name, description, appliance, ingredients and ustensils
-	 * @param {Recipe} recipe
-	 * @param {string} keyword
+	 * @param {Set<string>} itemSet
+	 * @param {ArrayAdapter<string>} itemsToCheck
 	 * @returns {boolean}
 	 */
-	_isKeywordMatchV1(recipe, keyword) {
-		return (
-			keyword.length < MIN_KEYWORD_LENGTH ||
-			recipe.name.toLowerCase().includes(keyword) ||
-			recipe.description.toLowerCase().includes(keyword) ||
-			recipe.appliance.includes(keyword) ||
-			this._someInArray(recipe.ingredients, ({ name }) =>
-				name.includes(keyword)
-			) ||
-			this._someInArray(recipe.ustensils, (ustensil) =>
-				ustensil.includes(keyword)
-			)
-		);
+	#areItemsMatch(itemSet, itemsToCheck) {
+		return itemsToCheck.some((item) => itemSet.has(item));
 	}
 
 	/**
@@ -69,68 +40,52 @@ export class RecipeFilter {
 	 * @param {string} keyword
 	 * @returns {boolean}
 	 */
-	_isKeywordMatchV2(recipe, keyword) {
+	#isKeywordMatch(recipe, keyword) {
 		return (
-			keyword.length < MIN_KEYWORD_LENGTH ||
 			recipe.name.toLowerCase().includes(keyword) ||
 			recipe.description.toLowerCase().includes(keyword) ||
-			this._someInArray(recipe.ingredients, ({ name }) =>
-				name.includes(keyword)
-			)
+			recipe.ingredients.some(({ name }) => name.includes(keyword))
 		);
 	}
 
 	/**
 	 * @param {Recipe} recipe
-	 * @param {string} keyword
+	 * @param {ArrayAdapter<string>} ingredients
 	 * @returns {boolean}
 	 */
-	_isKeywordMatch(recipe, keyword) {
-		return this._isKeywordMatchV2(recipe, keyword);
-	}
-
-	/**
-	 * @param {Recipe} recipe
-	 * @param {Array<string>} ingredients
-	 * @returns {boolean}
-	 */
-	_areIngredientsMatch(recipe, ingredients) {
-		if (ingredients.length === 0) return true;
-
+	#areIngredientsMatch(recipe, ingredients) {
 		const uniqueIngredients = new Set(
-			this._mapArray(recipe.ingredients, ({ name }) => name)
+			recipe.ingredients.map(({ name }) => name)
 		);
 
-		return this._areItemsMatch(uniqueIngredients, ingredients);
+		return this.#areItemsMatch(uniqueIngredients, ingredients);
 	}
 
 	/**
 	 * @param {Recipe} recipe
-	 * @param {Array<string>} ustensils
+	 * @param {ArrayAdapter<string>} ustensils
 	 * @returns {boolean}
 	 */
-	_areUstensilsMatch(recipe, ustensils) {
-		if (ustensils.length === 0) return true;
-		return this._areItemsMatch(new Set(recipe.ustensils), ustensils);
+	#areUstensilsMatch(recipe, ustensils) {
+		return this.#areItemsMatch(new Set(recipe.ustensils), ustensils);
 	}
 
 	/**
 	 * @param {Recipe} recipe
-	 * @param {Array<string>} appliances
+	 * @param {ArrayAdapter<string>} appliances
 	 * @returns {boolean}
 	 */
-	_isApplianceMatch(recipe, appliances) {
-		if (appliances.length === 0) return true;
-		return this._areItemsMatch(new Set([recipe.appliance]), appliances);
+	#isApplianceMatch(recipe, appliances) {
+		return this.#areItemsMatch(new Set([recipe.appliance]), appliances);
 	}
 
-	/** @param {Array<string>} arr */
-	_arrayItemToLowerCase(arr) {
-		return this._mapArray(arr, (item) => item.toLowerCase());
+	/** @param {ArrayAdapter<string>} array */
+	#arrayItemToLowerCase(array) {
+		return array.map((item) => item.toLowerCase());
 	}
 
 	/**
-	 * @param {Recipe[]} filteredRecipes
+	 * @param {ArrayAdapter<Recipe>} filteredRecipes
 	 * @returns {TagList}
 	 */
 	updateTagList(filteredRecipes) {
@@ -138,54 +93,60 @@ export class RecipeFilter {
 		const uniqueUstensils = new Set();
 		const uniqueAppliances = new Set();
 
-		this._foreach(filteredRecipes, (recipe) => {
+		filteredRecipes.forEach((recipe) => {
 			uniqueAppliances.add(recipe.appliance);
-			this._foreach(recipe.ustensils, (ustensil) =>
+
+			recipe.ustensils.forEach((ustensil) =>
 				uniqueUstensils.add(ustensil)
 			);
-			this._foreach(recipe.ingredients, ({ name }) =>
+
+			recipe.ingredients.forEach(({ name }) =>
 				uniqueIngredients.add(name)
 			);
 		});
 
 		return {
-			ingredients: [...uniqueIngredients],
-			ustensils: [...uniqueUstensils],
-			appliances: [...uniqueAppliances],
+			ingredients: new ArrayAdapter(...uniqueIngredients),
+			ustensils: new ArrayAdapter(...uniqueUstensils),
+			appliances: new ArrayAdapter(...uniqueAppliances),
 		};
 	}
 
 	/**
+	 *
 	 * @param {string} keyword
-	 * @param {Array<string>} ingredients
-	 * @param {Array<string>} ustensils
-	 * @param {Array<string>} appliances
+	 * @param {ArrayAdapter<string>} ingredients
+	 * @param {ArrayAdapter<string>} ustensils
+	 * @param {ArrayAdapter<string>} appliances
+	 * @returns {ArrayAdapter<Recipe>}
 	 */
 	filterRecipesCombined(
 		keyword = "",
-		ingredients = [],
-		ustensils = [],
-		appliances = []
+		ingredients = new ArrayAdapter(),
+		ustensils = new ArrayAdapter(),
+		appliances = new ArrayAdapter()
 	) {
 		keyword = keyword.toLowerCase();
-		ingredients = this._arrayItemToLowerCase(ingredients);
-		ustensils = this._arrayItemToLowerCase(ustensils);
-		appliances = this._arrayItemToLowerCase(appliances);
+		ingredients = this.#arrayItemToLowerCase(ingredients);
+		ustensils = this.#arrayItemToLowerCase(ustensils);
+		appliances = this.#arrayItemToLowerCase(appliances);
 
-		return this._filterRecipes((recipe) => {
-			const isKeywordMatch = this._isKeywordMatch(recipe, keyword);
+		return this.#recipes.filter((recipe) => {
+			const isKeywordMatch =
+				keyword.length < MIN_KEYWORD_LENGTH ||
+				this.#isKeywordMatch(recipe, keyword);
 
-			const areIngredientsMatch = this._areIngredientsMatch(
-				recipe,
-				ingredients
-			);
+			const areIngredientsMatch =
+				ingredients.length === 0 ||
+				this.#areIngredientsMatch(recipe, ingredients);
 
-			const areUstensilsMatch = this._areUstensilsMatch(
-				recipe,
-				ustensils
-			);
+			const areUstensilsMatch =
+				ustensils.length === 0 ||
+				this.#areUstensilsMatch(recipe, ustensils);
 
-			const isApplianceMatch = this._isApplianceMatch(recipe, appliances);
+			const isApplianceMatch =
+				appliances.length === 0 ||
+				this.#isApplianceMatch(recipe, appliances);
 
 			return (
 				isKeywordMatch &&
