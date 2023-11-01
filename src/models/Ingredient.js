@@ -1,9 +1,13 @@
 "use strict";
 
-/** Ingredient Model */
+/**
+ * Ingredient Model
+ */
 export class Ingredient {
 	#ingredient;
+
 	#quantity;
+
 	#unit;
 
 	/**

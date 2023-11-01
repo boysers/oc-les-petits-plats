@@ -2,20 +2,19 @@
 
 import { ArrayAdapter } from "../adapter";
 import { MIN_KEYWORD_LENGTH } from "../constants";
-import { RecipeFilter } from "../recipe/RecipeFilter";
-import { cleanAndNormalizeString } from "../utils/normalizeString";
+import { RecipesFilter, escapeHtml, normalizeString } from "../utils";
 import { CreateElement } from "./CreateElement";
 import { RecipeCard } from "./RecipeCard";
 import { SearchBar } from "./SearchBar";
 import { TagMenu } from "./TagMenu";
 
-/** @typedef {import('../models/Recipe').Recipe} Recipe */
-
-/** Search recipe form template */
+/**
+ * Search recipe form template
+ */
 export class SearchRecipeForm {
 	#recipes;
 
-	#recipeFilter;
+	#recipesFilter;
 
 	#keyword;
 
@@ -34,12 +33,12 @@ export class SearchRecipeForm {
 	#recipeCountEl;
 
 	/**
-	 * @param {ArrayAdapter<Recipe>} recipes
+	 * @param {ArrayAdapter<import('../models/Recipe').Recipe>} recipes
 	 */
 	constructor(recipes) {
 		this.#recipes = new ArrayAdapter(...recipes);
 
-		this.#recipeFilter = new RecipeFilter(this.#recipes);
+		this.#recipesFilter = new RecipesFilter(this.#recipes);
 
 		this.#keyword = "";
 
@@ -69,7 +68,7 @@ export class SearchRecipeForm {
 
 		const { appliances, ustensils, ingredients } = this.#activeTags;
 
-		const filteredRecipes = this.#recipeFilter.filterRecipesCombined(
+		const filteredRecipes = this.#recipesFilter.filterRecipesCombined(
 			this.#keyword,
 			ingredients,
 			ustensils,
@@ -87,7 +86,7 @@ export class SearchRecipeForm {
 		});
 
 		const updatedTagList =
-			this.#recipeFilter.updateTagList(filteredRecipes);
+			this.#recipesFilter.updateTagList(filteredRecipes);
 
 		this.#updateTagMenus(updatedTagList);
 		this.#updateRecipesCount(recipesCount);
@@ -134,7 +133,7 @@ export class SearchRecipeForm {
 	}
 
 	/**
-	 * @param {import('../recipe/RecipeFilter').TagList} updatedTagList
+	 * @param {import('../types').TagList} updatedTagList
 	 * @returns {void}
 	 */
 	#updateTagMenus(updatedTagList) {
@@ -153,7 +152,9 @@ export class SearchRecipeForm {
 
 			const value = e.target.value;
 
-			this.#keyword = cleanAndNormalizeString(value.toLowerCase());
+			const unsafeKeyword = normalizeString(value.toLowerCase());
+
+			this.#keyword = escapeHtml(unsafeKeyword);
 
 			this.#filterRecipeCards();
 		});
@@ -224,6 +225,8 @@ export class SearchRecipeForm {
 	}
 
 	render() {
+		if (!this.#recipesWrapper) return;
+
 		const uniqueIngredients = new Set();
 		const uniqueAppliances = new Set();
 		const uniqueUstensils = new Set();

@@ -1,11 +1,12 @@
 "use strict";
 
-import { capitalizeFirstLetter } from "../utils/capitalizeFirstLetter";
+import { capitalizeFirstLetter } from "../utils";
 import { CreateElement } from "./CreateElement";
 
 export class RecipeCard {
 	/** @type {HTMLElement | undefined} */
 	#card;
+
 	#recipe;
 
 	/**

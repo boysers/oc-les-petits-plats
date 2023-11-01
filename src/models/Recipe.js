@@ -4,16 +4,26 @@ import { ArrayAdapter } from "../adapter";
 import { BASE_URL } from "../constants";
 import { createIngredientInstance } from "./Ingredient";
 
-/** Recipe Model */
+/**
+ * Recipe Model
+ */
 export class Recipe {
 	#id;
+
 	#image;
+
 	#name;
+
 	#servings;
+
 	#ingredients;
+
 	#time;
+
 	#description;
+
 	#appliance;
+
 	#ustensils;
 
 	/**

@@ -3,23 +3,14 @@
 import { ArrayAdapter } from "../adapter";
 import { MIN_KEYWORD_LENGTH } from "../constants";
 
-/**
- * @typedef {Object} TagList
- * @property {ArrayAdapter<string>} ingredients
- * @property {ArrayAdapter<string>} ustensils
- * @property {ArrayAdapter<string>} appliances
- */
-
-/** @typedef {import('../models/Recipe').Recipe} Recipe */
-
-export class RecipeFilter {
+export class RecipesFilter {
 	#recipes;
 
 	/**
-	 * @param {ArrayAdapter<Recipe>} recipes
+	 * @param {ArrayAdapter<import('../models/Recipe').Recipe>} recipes
 	 */
 	constructor(recipes) {
-		this.#recipes = recipes;
+		this.#recipes = new ArrayAdapter(...recipes);
 	}
 
 	/**
@@ -34,7 +25,7 @@ export class RecipeFilter {
 
 	/**
 	 * Match : name, description and ingredients
-	 * @param {Recipe} recipe
+	 * @param {import('../models/Recipe').Recipe} recipe
 	 * @param {string} keyword
 	 * @returns {boolean}
 	 */
@@ -47,7 +38,7 @@ export class RecipeFilter {
 	}
 
 	/**
-	 * @param {Recipe} recipe
+	 * @param {import('../models/Recipe').Recipe} recipe
 	 * @param {ArrayAdapter<string>} ingredients
 	 * @returns {boolean}
 	 */
@@ -60,7 +51,7 @@ export class RecipeFilter {
 	}
 
 	/**
-	 * @param {Recipe} recipe
+	 * @param {import('../models/Recipe').Recipe} recipe
 	 * @param {ArrayAdapter<string>} ustensils
 	 * @returns {boolean}
 	 */
@@ -69,7 +60,7 @@ export class RecipeFilter {
 	}
 
 	/**
-	 * @param {Recipe} recipe
+	 * @param {import('../models/Recipe').Recipe} recipe
 	 * @param {ArrayAdapter<string>} appliances
 	 * @returns {boolean}
 	 */
@@ -83,8 +74,8 @@ export class RecipeFilter {
 	}
 
 	/**
-	 * @param {ArrayAdapter<Recipe>} filteredRecipes
-	 * @returns {TagList}
+	 * @param {ArrayAdapter<import('../models/Recipe').Recipe>} filteredRecipes
+	 * @returns {import('../types').TagList}
 	 */
 	updateTagList(filteredRecipes) {
 		const uniqueIngredients = new Set();
@@ -111,12 +102,27 @@ export class RecipeFilter {
 	}
 
 	/**
-	 *
+	 * @param {string} keyword
+	 * @returns {ArrayAdapter<import('../models/Recipe').Recipe>}
+	 */
+	filterRecipes(keyword) {
+		keyword = keyword.toLowerCase();
+
+		const filteredRecipes = this.#recipes.filter(
+			(recipe) =>
+				keyword.length < MIN_KEYWORD_LENGTH ||
+				this.#isKeywordMatch(recipe, keyword)
+		);
+
+		return filteredRecipes;
+	}
+
+	/**
 	 * @param {string} keyword
 	 * @param {ArrayAdapter<string>} ingredients
 	 * @param {ArrayAdapter<string>} ustensils
 	 * @param {ArrayAdapter<string>} appliances
-	 * @returns {ArrayAdapter<Recipe>}
+	 * @returns {ArrayAdapter<import('../models/Recipe').Recipe>}
 	 */
 	filterRecipesCombined(
 		keyword = "",
@@ -129,7 +135,7 @@ export class RecipeFilter {
 		ustensils = this.#arrayItemToLowerCase(ustensils);
 		appliances = this.#arrayItemToLowerCase(appliances);
 
-		return this.#recipes.filter((recipe) => {
+		const filteredRecipes = this.#recipes.filter((recipe) => {
 			const isKeywordMatch =
 				keyword.length < MIN_KEYWORD_LENGTH ||
 				this.#isKeywordMatch(recipe, keyword);
@@ -153,5 +159,7 @@ export class RecipeFilter {
 				isApplianceMatch
 			);
 		});
+
+		return filteredRecipes;
 	}
 }

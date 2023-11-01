@@ -1,11 +1,12 @@
 "use strict";
 
-import { capitalizeFirstLetter } from "../utils/capitalizeFirstLetter";
+import { capitalizeFirstLetter } from "../utils";
 import { CreateElement } from "./CreateElement";
 
 export class TagCard {
 	/** @type {HTMLElement | undefined} */
 	#tagCard;
+
 	#tagname;
 
 	/** @param {string} tag */
@@ -22,7 +23,7 @@ export class TagCard {
 	 * @returns {this}
 	 */
 	setHidden(hidden) {
-		if (!this.#tagCard && this.#tagCard?.hidden !== hidden) return;
+		if (!this.#tagCard) return;
 		this.#tagCard.hidden = hidden;
 		this.#tagCard.setAttribute("aria-hidden", hidden ? "true" : "false");
 		return this;

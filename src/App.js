@@ -1,9 +1,9 @@
 "use strict";
 
 import { ArrayAdapter } from "./adapter";
-import { recipes as dataRecipes } from "./data/recipes";
-import { createRecipeInstance } from "./models/Recipe";
-import { SearchRecipeForm } from "./templates/SearchRecipeForm";
+import { dataRecipes } from "./data";
+import { createRecipeInstance } from "./models";
+import { SearchRecipeForm } from "./templates";
 
 class App {
 	#recipes;

@@ -5,11 +5,11 @@ import { CreateElement } from "./CreateElement";
 
 /**
  * Event Type for Search Bar
- * @typedef {'input' | 'submit' | 'click'} EventType
+ * @typedef {'input' | 'submit' | 'click'} SearchBarEventType
  */
 
 export class SearchBar {
-	/** @type {Record<EventType, ArrayAdapter<(event: Event | FormDataEvent) => void>>} */
+	/** @type {Record<SearchBarEventType, ArrayAdapter<(event: Event | FormDataEvent) => void>>} */
 	#listeners;
 
 	/** @type {string | undefined} */
@@ -68,7 +68,7 @@ export class SearchBar {
 
 	/**
 	 *
-	 * @param {EventType} type
+	 * @param {SearchBarEventType} type
 	 * @param {HTMLInputElement | HTMLFormElement | HTMLButtonElement} element
 	 * @param {(event: Event | FormDataEvent) => void} callback
 	 * @returns {void}
@@ -82,7 +82,7 @@ export class SearchBar {
 
 	/**
 	 * Added an event listener.
-	 * @param {EventType} type
+	 * @param {SearchBarEventType} type
 	 * @param {(event: Event | FormDataEvent) => void} callback
 	 * @returns {void}
 	 */

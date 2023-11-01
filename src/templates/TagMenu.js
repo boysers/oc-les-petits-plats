@@ -1,8 +1,7 @@
 "use strict";
 
 import { ArrayAdapter } from "../adapter";
-import { capitalizeFirstLetter } from "../utils/capitalizeFirstLetter";
-import { cleanAndNormalizeString } from "../utils/normalizeString";
+import { capitalizeFirstLetter, escapeHtml, normalizeString } from "../utils";
 import { CreateElement } from "./CreateElement";
 import { SearchBar } from "./SearchBar";
 import { TagCard } from "./TagCard";
@@ -86,7 +85,9 @@ export class TagMenu {
 
 			const value = e.target.value;
 
-			this.#keyword = cleanAndNormalizeString(value.toLowerCase());
+			const unsafeKeyword = normalizeString(value.toLowerCase());
+
+			this.#keyword = escapeHtml(unsafeKeyword);
 
 			this.#filterTagCards();
 		});

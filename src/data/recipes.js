@@ -1,5 +1,9 @@
 "use strict";
 
+/**
+ * Recipe list for "Les petits plats" projet 7.
+ * https://github.com/OpenClassrooms-Student-Center/PetitsPlats2.0
+ */
 export const recipes = [
 	{
 		id: 1,

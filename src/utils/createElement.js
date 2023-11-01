@@ -9,14 +9,12 @@ import { ArrayAdapter } from "../adapter";
  * @property {Record<string, string>} [attributes]
  */
 
-/** @typedef {Array<string | Node | Node[]>} Children */
-
 /**
  * Creates an instance of the element for the specified tag.
  * @template {keyof HTMLElementTagNameMap} K
  * @param {K} tagname
  * @param {Props} [props]
- * @param {Children} [children]
+ * @param {ArrayAdapter<string | Node | Node[]>} [children]
  * @returns {HTMLElementTagNameMap[K]}
  */
 export function createElement(tagname, props = {}, ...children) {

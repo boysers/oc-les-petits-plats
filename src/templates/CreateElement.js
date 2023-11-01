@@ -1,11 +1,15 @@
 "use strict";
 
 import { ArrayAdapter } from "../adapter";
-import { createElement } from "../utils/createElement";
+import { createElement } from "../utils";
 
 export class CreateElement {
+	/** @type {ArrayAdapter<string>} */
 	#classes;
+
 	#attributes;
+
+	/** @type {ArrayAdapter<string | Node | Node[]>} */
 	#children;
 
 	constructor() {
@@ -35,7 +39,7 @@ export class CreateElement {
 	}
 
 	/**
-	 * @param {Array<string | number | Node | Node[]>} children
+	 * @param {ArrayAdapter<string | Node | Node[]>} children
 	 * @returns {this}
 	 */
 	addChildren(...children) {

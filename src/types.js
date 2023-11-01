@@ -20,4 +20,11 @@
  * @property {string} [unit]
  */
 
+/**
+ * @typedef {Object} TagList
+ * @property {ArrayAdapter<string>} ingredients
+ * @property {ArrayAdapter<string>} ustensils
+ * @property {ArrayAdapter<string>} appliances
+ */
+
 export default {};
