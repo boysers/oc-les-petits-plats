@@ -1,6 +1,6 @@
 "use strict";
 
-import { Adapter } from "../adapter";
+import { ArrayAdapter } from "../adapter";
 import { MIN_KEYWORD_LENGTH } from "../constants";
 import { RecipeFilter } from "../recipe/RecipeFilter";
 import { cleanAndNormalizeString } from "../utils/normalizeString";
@@ -13,100 +13,70 @@ import { TagMenu } from "./TagMenu";
 
 /** Search recipe form template */
 export class SearchRecipeForm {
+	#recipes;
+
+	#recipeFilter;
+
+	#keyword;
+
+	/** @type {Record<'ingredients'|'ustensils'|'appliances', ArrayAdapter<string>>} */
+	#activeTags;
+
+	/** @type {Record<'ingredients' | 'ustensils' | 'appliances', TagMenu>} */
+	#tagMenus;
+
+	#recipeCards;
+
+	#recipesWrapper;
+
+	#recipeCountEl;
+
+	#notFoundEl;
+
 	/**
-	 * @param {Array<Recipe>} recipes
-	 * @param {Adapter} adapter
+	 * @param {ArrayAdapter<Recipe>} recipes
 	 */
-	constructor(recipes, adapter = new Adapter()) {
-		this._someInArray = adapter.someInArray;
-		this._mapArray = adapter.mapArray;
-		this._foreach = adapter.foreach;
+	constructor(recipes) {
+		this.#recipes = new ArrayAdapter(...recipes);
 
-		this._recipes = recipes;
+		this.#recipeFilter = new RecipeFilter(this.#recipes);
 
-		this._recipeFilter = new RecipeFilter(this._recipes);
+		this.#keyword = "";
 
-		this._keyword = "";
-
-		/**
-		 * @type {Record<'ingredients'|'ustensils'|'appliances', Array<string>>}
-		 */
-		this._activeTags = {
-			ingredients: [],
-			ustensils: [],
-			appliances: [],
+		this.#activeTags = {
+			ingredients: new ArrayAdapter(),
+			ustensils: new ArrayAdapter(),
+			appliances: new ArrayAdapter(),
 		};
 
-		/** @type {Record<'ingredients' | 'ustensils' | 'appliances', TagMenu>} */
-		this._tagMenus = {};
+		this.#tagMenus = {};
 
-		this._recipeCards = adapter.instantiateObjects(
-			this._recipes,
-			RecipeCard
-		);
+		this.#recipesWrapper = document.querySelector(".recipes-wrapper");
+		this.#recipeCountEl = document.querySelector("#recipe-count");
 
-		/**
-		 * @param {(item: Recipe, index: number, array: Array<Recipe> ) => void} callback
-		 */
-		this._forEachRecipes = (callback) => {
-			adapter.foreach(this._recipes, callback);
-		};
-
-		/**
-		 * @param {(item: RecipeCard, index: number, array: Array<RecipeCard> ) => void} callback
-		 */
-		this._forEachRecipeCards = (callback) => {
-			adapter.foreach(this._recipeCards, callback);
-		};
-
-		this._recipesWrapper = document.querySelector(".recipes-wrapper");
-		this._recipeCountEl = document.querySelector("#recipe-count");
-		this._tagActiveList = document.querySelector(
-			".tag-controls__tag-active-list"
-		);
-
-		this._notFoundEl = new CreateElement()
+		this.#notFoundEl = new CreateElement()
 			.addChildren("not found")
 			.addClasses("close", "not-found")
 			.create("p");
-	}
 
-	/**
-	 * @param {string} text
-	 * @returns {boolean}
-	 */
-	_includesKeyword(text) {
-		return text.toLowerCase().includes(this._keyword);
-	}
-
-	/**
-	 * @param {Recipe} recipe
-	 * @returns {boolean}
-	 */
-	_filterWithKeyword(recipe) {
-		const { name, description, appliance, ingredients, ustensils } = recipe;
-
-		const ingredientTexts = this._mapArray(ingredients, ({ name }) => name);
-
-		return this._someInArray(
-			[name, description, appliance, ...ustensils, ...ingredientTexts],
-			(text) => this._includesKeyword(text)
+		this.#recipeCards = this.#recipes.map(
+			(recipe) => new RecipeCard(recipe)
 		);
 	}
 
-	_filterCardsV3() {
-		this._recipeCountEl.textContent = "1500 recettes";
+	#filterRecipeCards() {
+		this.#resetRecipesCount();
 
-		const { appliances, ustensils, ingredients } = this._activeTags;
+		const { appliances, ustensils, ingredients } = this.#activeTags;
 
-		const filteredRecipes = this._recipeFilter.filterRecipesCombined(
-			this._keyword,
+		const filteredRecipes = this.#recipeFilter.filterRecipesCombined(
+			this.#keyword,
 			ingredients,
 			ustensils,
 			appliances
 		);
 
-		this._forEachRecipeCards((card) => {
+		this.#recipeCards.forEach((card) => {
 			if (filteredRecipes.find((r) => r.id === card.recipe.id)) {
 				card.setHidden(false);
 				return;
@@ -115,13 +85,13 @@ export class SearchRecipeForm {
 		});
 
 		const updatedTagList =
-			this._recipeFilter.updateTagList(filteredRecipes);
+			this.#recipeFilter.updateTagList(filteredRecipes);
 
 		if (
-			!(this._keyword.length < MIN_KEYWORD_LENGTH) ||
-			this._tagMenus.appliances.activeTags.size ||
-			this._tagMenus.ingredients.activeTags.size ||
-			this._tagMenus.ustensils.activeTags.size
+			!(this.#keyword.length < MIN_KEYWORD_LENGTH) ||
+			this.#tagMenus.appliances.activeTags.size ||
+			this.#tagMenus.ingredients.activeTags.size ||
+			this.#tagMenus.ustensils.activeTags.size
 		) {
 			const count =
 				filteredRecipes.length === 0
@@ -132,27 +102,31 @@ export class SearchRecipeForm {
 					? `0${filteredRecipes.length} recettes`
 					: `${filteredRecipes.length} recettes`;
 
-			this._recipeCountEl.textContent = count;
+			this.#recipeCountEl.textContent = count;
 		}
 
 		if (!filteredRecipes.length) {
-			this._notFoundEl.classList.remove("close");
-			this._notFoundEl.innerText = `Aucune recette ne contient ‘${this._keyword}’ vous pouvez chercher « tarte aux pommes », « poisson », etc.`;
+			this.#notFoundEl.classList.remove("close");
+			this.#notFoundEl.innerText = `Aucune recette ne contient ‘${
+				this.#keyword
+			}’ vous pouvez chercher « tarte aux pommes », « poisson », etc.`;
 		} else {
-			this._notFoundEl.classList.add("close");
+			this.#notFoundEl.classList.add("close");
 		}
 
-		this._tagMenus.appliances.setHiddenTags(updatedTagList.appliances);
-		this._tagMenus.ustensils.setHiddenTags(updatedTagList.ustensils);
-		this._tagMenus.ingredients.setHiddenTags(updatedTagList.ingredients);
+		console.log(updatedTagList.appliances);
+
+		this.#tagMenus.appliances.setHiddenTags(updatedTagList.appliances);
+		this.#tagMenus.ustensils.setHiddenTags(updatedTagList.ustensils);
+		this.#tagMenus.ingredients.setHiddenTags(updatedTagList.ingredients);
 	}
 
-	/** @returns {void} */
-	_filterRecipeCards() {
-		this._filterCardsV3();
+	#resetRecipesCount() {
+		const count = `${this.#recipeCards.length} recettes`;
+		this.#recipeCountEl.textContent = count;
 	}
 
-	_initSearchBar() {
+	#initSearchBar() {
 		const searchBar = new SearchBar();
 		searchBar.placeholder = "Rechercher une recette, un ingrédient, ...";
 
@@ -162,9 +136,9 @@ export class SearchRecipeForm {
 
 			const value = e.target.value;
 
-			this._keyword = cleanAndNormalizeString(value.toLowerCase());
+			this.#keyword = cleanAndNormalizeString(value.toLowerCase());
 
-			this._filterRecipeCards();
+			this.#filterRecipeCards();
 		});
 
 		document
@@ -173,52 +147,36 @@ export class SearchRecipeForm {
 	}
 
 	/**
-	 * Render component
+	 * @param {Set<string>} uniqueIngredients
+	 * @param {Set<string>} uniqueAppliances
+	 * @param {Set<string>} uniqueUstensils
 	 * @returns {void}
 	 */
-	render() {
-		this._initSearchBar();
-		this._recipesWrapper.appendChild(this._notFoundEl);
-
-		/** @type {Set<string>} */
-		const ustensils = new Set();
-
-		/** @type {Set<string>} */
-		const appliances = new Set();
-
-		/** @type {Set<string>} */
-		const ingredients = new Set();
-
-		this._forEachRecipeCards((card) => {
-			const recipe = card.recipe;
-
-			appliances.add(recipe.appliance);
-			this._foreach(recipe.ustensils, (ustensil) =>
-				ustensils.add(ustensil)
-			);
-			this._foreach(recipe.ingredients, ({ name }) =>
-				ingredients.add(name)
-			);
-
-			this._recipesWrapper.appendChild(card.create());
-		});
-
-		this._tagMenus.ingredients = new TagMenu(Array.from(ingredients));
-		this._tagMenus.appliances = new TagMenu(Array.from(appliances));
-		this._tagMenus.ustensils = new TagMenu(Array.from(ustensils));
-
-		/** @type {Array<[TagMenu, string, string]>} */
-		const tagMenus = [
-			[this._tagMenus.ingredients, "Ingrédients", "ingredients"],
-			[this._tagMenus.appliances, "Appareils", "appliances"],
-			[this._tagMenus.ustensils, "Ustensiles", "ustensils"],
-		];
-
+	#initMenus(uniqueIngredients, uniqueAppliances, uniqueUstensils) {
 		const tagMenuWrapper = document.querySelector(
 			".tag-controls__tag-menu-wrapper"
 		);
 
-		this._foreach(tagMenus, ([tagMenu, value, key]) => {
+		const eventClose = new Event("close");
+
+		this.#tagMenus.ingredients = new TagMenu(
+			new ArrayAdapter(...uniqueIngredients)
+		);
+		this.#tagMenus.appliances = new TagMenu(
+			new ArrayAdapter(...uniqueAppliances)
+		);
+		this.#tagMenus.ustensils = new TagMenu(
+			new ArrayAdapter(...uniqueUstensils)
+		);
+
+		/** @type {ArrayAdapter<[TagMenu, string, string]>} */
+		const tagMenus = new ArrayAdapter(
+			[this.#tagMenus.ingredients, "Ingrédients", "ingredients"],
+			[this.#tagMenus.appliances, "Appareils", "appliances"],
+			[this.#tagMenus.ustensils, "Ustensiles", "ustensils"]
+		);
+
+		tagMenus.forEach(([tagMenu, value, key]) => {
 			const menuEl = tagMenu.create(value);
 
 			tagMenuWrapper.appendChild(menuEl);
@@ -228,25 +186,50 @@ export class SearchRecipeForm {
 
 				if (!Array.isArray(tags)) return;
 
-				this._activeTags[key] = tags;
+				this.#activeTags[key] = new ArrayAdapter(...tags);
 
-				this._filterRecipeCards();
+				this.#filterRecipeCards();
 			});
 		});
 
-		const eventClose = new Event("close");
+		document.addEventListener("click", (event) =>
+			new ArrayAdapter(...Object.values(this.#tagMenus)).forEach(
+				(menu) => {
+					const button = menu.button;
+					const input = menu.input;
 
-		document.addEventListener("click", (e) => {
-			this._foreach(Object.values(this._tagMenus), (menu) => {
-				const button = menu.button;
-				const input = menu.input;
-
-				if (!(e.target === button || e.target === input)) {
-					button.dispatchEvent(eventClose);
+					if (!(event.target === button || event.target === input)) {
+						button.dispatchEvent(eventClose);
+					}
 				}
-			});
+			)
+		);
+	}
+
+	render() {
+		const uniqueIngredients = new Set();
+		const uniqueAppliances = new Set();
+		const uniqueUstensils = new Set();
+
+		this.#recipesWrapper.appendChild(this.#notFoundEl);
+
+		this.#recipeCards.forEach((card) => {
+			const recipe = card.recipe;
+
+			uniqueAppliances.add(recipe.appliance);
+			recipe.ingredients.forEach(({ name }) =>
+				uniqueIngredients.add(name)
+			);
+			recipe.ustensils.forEach((ustensil) =>
+				uniqueUstensils.add(ustensil)
+			);
+
+			this.#recipesWrapper.appendChild(card.create());
 		});
 
-		this._filterRecipeCards();
+		this.#initSearchBar();
+		this.#initMenus(uniqueIngredients, uniqueAppliances, uniqueUstensils);
+
+		this.#resetRecipesCount();
 	}
 }

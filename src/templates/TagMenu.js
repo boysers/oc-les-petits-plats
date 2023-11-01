@@ -7,11 +7,6 @@ import { CreateElement } from "./CreateElement";
 import { SearchBar } from "./SearchBar";
 import { TagCard } from "./TagCard";
 
-/**
- * Event Type for Search Bar
- * @typedef {'click'} EventType
- */
-
 export class TagMenu {
 	/** @type {HTMLElement | undefined} */
 	#tagMenu;
@@ -31,9 +26,6 @@ export class TagMenu {
 	/** @type {Set<string>} */
 	#activeTags;
 
-	/** @type {Record<EventType, ArrayAdapter<(event: Event) => void | (event: Event, activeTags: ArrayAdapter<string>) => void>>} */
-	#listeners;
-
 	#eventActiveTags;
 
 	/** @type {HTMLInputElement | undefined} */
@@ -44,22 +36,17 @@ export class TagMenu {
 
 	/**
 	 * @param {ArrayAdapter<string>} tags
-	 * @param {Adapter} adapter
 	 */
 	constructor(tags) {
 		this.#keyword = "";
 
 		this.#tags = new ArrayAdapter(...tags);
 
-		this.#hiddenTags = new ArrayAdapter();
+		this.#hiddenTags = new ArrayAdapter(...tags);
 
 		this.#tagCards = this.#tags.map((tag) => new TagCard(tag));
 
 		this.#activeTags = new Set();
-
-		this.#listeners = {
-			click: new ArrayAdapter(),
-		};
 
 		this.#eventActiveTags = new CustomEvent("active-tags", {
 			detail: { tags: new ArrayAdapter(...this.#activeTags) },
@@ -84,20 +71,10 @@ export class TagMenu {
 	}
 
 	#updateActiveTags() {
-		this.#eventActiveTags.detail.tags = ArrayAdapter.from(this.#activeTags);
+		this.#eventActiveTags.detail.tags = new ArrayAdapter(
+			...this.#activeTags
+		);
 		this.#tagMenu.dispatchEvent(this.#eventActiveTags);
-	}
-
-	/**
-	 * @param {HTMLElement} element
-	 * @param {(event: Event) => void} [callback]
-	 * @returns {void}
-	 */
-	#initOnClick(element, callback) {
-		element.addEventListener("click", (event) => {
-			callback instanceof Function && callback(event);
-			this.#listeners["click"].forEach((listener) => listener(event));
-		});
 	}
 
 	#createSearchBar() {
@@ -293,16 +270,6 @@ export class TagMenu {
 	setHiddenTags(hiddenTags) {
 		this.#hiddenTags = hiddenTags;
 		this.#filterTagCards();
-	}
-
-	/**
-	 * Added an event listener.
-	 * @param {EventType} type
-	 * @param {(event: Event) => void} callback
-	 * @returns {void}
-	 */
-	addEventListener(type, callback) {
-		this.#listeners[type].push(callback);
 	}
 
 	/**
