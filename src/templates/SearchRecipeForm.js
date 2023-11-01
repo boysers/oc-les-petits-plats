@@ -114,8 +114,6 @@ export class SearchRecipeForm {
 			this.#notFoundEl.classList.add("close");
 		}
 
-		console.log(updatedTagList.appliances);
-
 		this.#tagMenus.appliances.setHiddenTags(updatedTagList.appliances);
 		this.#tagMenus.ustensils.setHiddenTags(updatedTagList.ustensils);
 		this.#tagMenus.ingredients.setHiddenTags(updatedTagList.ingredients);
