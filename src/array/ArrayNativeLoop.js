@@ -32,9 +32,11 @@ export default class ArrayNativeLoop extends Array {
 		/** @type {Array<T>} */
 		const filteredArray = [];
 
+		let filteredArrayIndex = 0;
+
 		for (let index = 0; index < this.length; index++) {
 			if (predicate(this[index], index, this)) {
-				filteredArray.push(this[index]);
+				filteredArray[filteredArrayIndex++] = this[index];
 			}
 		}
 
