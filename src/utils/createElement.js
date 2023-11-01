@@ -1,5 +1,7 @@
 "use strict";
 
+import { ArrayAdapter } from "../adapter";
+
 /**
  * @typedef {Object} Props
  * @property {string} [id]
@@ -7,7 +9,7 @@
  * @property {Record<string, string>} [attributes]
  */
 
-/** @typedef {Array<string | number | Node | Node[]>} Children */
+/** @typedef {Array<string | Node | Node[]>} Children */
 
 /**
  * Creates an instance of the element for the specified tag.
@@ -29,21 +31,23 @@ export function createElement(tagname, props = {}, ...children) {
 	}
 
 	if (props.attributes && typeof props.attributes === "object") {
-		Object.entries(props.attributes).forEach(([key, value]) => {
-			element.setAttribute(key, value);
-		});
+		new ArrayAdapter(...Object.entries(props.attributes)).forEach(
+			([key, value]) => {
+				element.setAttribute(key, value);
+			}
+		);
 	}
 
 	if (props.id && typeof props.id === "string") {
 		element.id = props.id;
 	}
 
-	children?.forEach((child) => {
+	new ArrayAdapter(...children).forEach((child) => {
 		if (Array.isArray(child)) {
 			return element.append(...child);
 		}
 
-		if (typeof child === "string" || typeof child === "number") {
+		if (typeof child === "string") {
 			child = document.createTextNode(child);
 		}
 

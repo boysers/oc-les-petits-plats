@@ -27,11 +27,11 @@ export class SearchRecipeForm {
 
 	#recipeCards;
 
+	#notFoundEl;
+
 	#recipesWrapper;
 
 	#recipeCountEl;
-
-	#notFoundEl;
 
 	/**
 	 * @param {ArrayAdapter<Recipe>} recipes
@@ -76,6 +76,8 @@ export class SearchRecipeForm {
 			appliances
 		);
 
+		const recipesCount = filteredRecipes.length;
+
 		this.#recipeCards.forEach((card) => {
 			if (filteredRecipes.find((r) => r.id === card.recipe.id)) {
 				card.setHidden(false);
@@ -87,25 +89,10 @@ export class SearchRecipeForm {
 		const updatedTagList =
 			this.#recipeFilter.updateTagList(filteredRecipes);
 
-		if (
-			!(this.#keyword.length < MIN_KEYWORD_LENGTH) ||
-			this.#tagMenus.appliances.activeTags.size ||
-			this.#tagMenus.ingredients.activeTags.size ||
-			this.#tagMenus.ustensils.activeTags.size
-		) {
-			const count =
-				filteredRecipes.length === 0
-					? "0 recette"
-					: filteredRecipes.length === 1
-					? "1 recette"
-					: filteredRecipes.length < 10
-					? `0${filteredRecipes.length} recettes`
-					: `${filteredRecipes.length} recettes`;
+		this.#updateTagMenus(updatedTagList);
+		this.#updateRecipesCount(recipesCount);
 
-			this.#recipeCountEl.textContent = count;
-		}
-
-		if (!filteredRecipes.length) {
+		if (recipesCount === 0) {
 			this.#notFoundEl.classList.remove("close");
 			this.#notFoundEl.innerText = `Aucune recette ne contient ‘${
 				this.#keyword
@@ -113,15 +100,47 @@ export class SearchRecipeForm {
 		} else {
 			this.#notFoundEl.classList.add("close");
 		}
-
-		this.#tagMenus.appliances.setHiddenTags(updatedTagList.appliances);
-		this.#tagMenus.ustensils.setHiddenTags(updatedTagList.ustensils);
-		this.#tagMenus.ingredients.setHiddenTags(updatedTagList.ingredients);
 	}
 
 	#resetRecipesCount() {
+		if (!this.#recipeCountEl) return;
 		const count = `${this.#recipeCards.length} recettes`;
 		this.#recipeCountEl.textContent = count;
+	}
+
+	/**
+	 * @param {number} recipesLength
+	 * @returns {void}
+	 */
+	#updateRecipesCount(recipesLength) {
+		if (!this.#recipeCountEl) return;
+		if (
+			!(this.#keyword.length < MIN_KEYWORD_LENGTH) ||
+			this.#tagMenus.appliances.activeTags.size ||
+			this.#tagMenus.ingredients.activeTags.size ||
+			this.#tagMenus.ustensils.activeTags.size
+		) {
+			const count =
+				recipesLength === 0
+					? "0 recette"
+					: recipesLength === 1
+					? "1 recette"
+					: recipesLength < 10
+					? `0${recipesLength} recettes`
+					: `${recipesLength} recettes`;
+
+			this.#recipeCountEl.textContent = count.toString();
+		}
+	}
+
+	/**
+	 * @param {import('../recipe/RecipeFilter').TagList} updatedTagList
+	 * @returns {void}
+	 */
+	#updateTagMenus(updatedTagList) {
+		this.#tagMenus.appliances.setHiddenTags(updatedTagList.appliances);
+		this.#tagMenus.ustensils.setHiddenTags(updatedTagList.ustensils);
+		this.#tagMenus.ingredients.setHiddenTags(updatedTagList.ingredients);
 	}
 
 	#initSearchBar() {

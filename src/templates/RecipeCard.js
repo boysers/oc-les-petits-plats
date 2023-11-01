@@ -31,7 +31,7 @@ export class RecipeCard {
 
 		const quantityElement = new CreateElement()
 			.addClasses("subtitle2")
-			.addChildren(qty ? (unit ? `${qty} ${unit}` : qty) : null)
+			.addChildren(qty ? (unit ? `${qty} ${unit}` : `${qty}`) : null)
 			.create("p");
 
 		return ingredientWrapper
@@ -40,10 +40,12 @@ export class RecipeCard {
 	}
 
 	#createIngredientsWrapper() {
+		const ingredients = this.#recipe.ingredients;
+
 		const ingredientList = new CreateElement();
 		ingredientList.addClasses("recipe-card__ingredients-wrapper");
 
-		const ingredientEls = this.#recipe.ingredients.map((ingredient) =>
+		const ingredientEls = ingredients.map((ingredient) =>
 			this.#createIngredientEl(ingredient)
 		);
 
@@ -51,7 +53,7 @@ export class RecipeCard {
 	}
 
 	#createInfoEl() {
-		const { name, description, ingredients } = this.#recipe;
+		const { name, description } = this.#recipe;
 
 		const infoWrapper = new CreateElement();
 		infoWrapper.addClasses("recipe-card__info-wrapper");
@@ -77,7 +79,7 @@ export class RecipeCard {
 			.addClasses("recipe-card__subtitle2")
 			.create("h4");
 
-		const ingredientsWrapper = this.#createIngredientsWrapper(ingredients);
+		const ingredientsWrapper = this.#createIngredientsWrapper();
 
 		return infoWrapper
 			.addChildren(
