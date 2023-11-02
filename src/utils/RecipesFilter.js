@@ -103,7 +103,7 @@ export class RecipesFilter {
 
 	/**
 	 * @param {string} keyword
-	 * @returns {Array<import('../types').TRecipe>}
+	 * @returns {Array<import('../models/Recipe').Recipe>}
 	 */
 	filterOption2(keyword) {
 		if (keyword.length < MIN_KEYWORD_LENGTH) {
@@ -114,9 +114,7 @@ export class RecipesFilter {
 			({ name, description, ingredients }) =>
 				name.toLowerCase().includes(keyword) ||
 				description.toLowerCase().includes(keyword) ||
-				ingredients.some(({ ingredient }) =>
-					ingredient.includes(keyword)
-				)
+				ingredients.some(({ name }) => name.includes(keyword))
 		);
 
 		return filteredRecipes;
