@@ -10,7 +10,7 @@ export class RecipesFilter {
 	 * @param {ArrayAdapter<import('../models/Recipe').Recipe>} recipes
 	 */
 	constructor(recipes) {
-		this.#recipes = new ArrayAdapter(...recipes);
+		this.#recipes = recipes;
 	}
 
 	/**
@@ -103,15 +103,20 @@ export class RecipesFilter {
 
 	/**
 	 * @param {string} keyword
-	 * @returns {ArrayAdapter<import('../models/Recipe').Recipe>}
+	 * @returns {Array<import('./types').TRecipe>}
 	 */
-	filterRecipes(keyword) {
-		keyword = keyword.toLowerCase();
+	filterOption2(keyword) {
+		if (keyword.length < MIN_KEYWORD_LENGTH) {
+			return this.#recipes;
+		}
 
 		const filteredRecipes = this.#recipes.filter(
-			(recipe) =>
-				keyword.length < MIN_KEYWORD_LENGTH ||
-				this.#isKeywordMatch(recipe, keyword)
+			({ name, description, ingredients }) =>
+				name.toLowerCase().includes(keyword) ||
+				description.toLowerCase().includes(keyword) ||
+				ingredients.some(({ ingredient }) =>
+					ingredient.includes(keyword)
+				)
 		);
 
 		return filteredRecipes;
