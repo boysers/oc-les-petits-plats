@@ -4,16 +4,55 @@ import { dataRecipes } from "./data";
 export class Benchmark {
 	#recipes;
 	#keyword;
+	#iterations;
 	#options;
 
 	constructor() {
 		this.#recipes = dataRecipes;
 		this.#keyword = "";
+		this.#iterations = 25000;
 
 		this.#options = {
 			option1: true,
 			option2: true,
 		};
+	}
+
+	/** @param {boolean} */
+	set option1(bool) {
+		this.#options["option1"] = bool;
+	}
+
+	get option1() {
+		return this.#options["option1"];
+	}
+
+	/** @param {boolean} */
+	set option2(bool) {
+		this.#options["option2"] = bool;
+	}
+
+	get option2() {
+		return this.#options["option2"];
+	}
+
+	/** @param {string} */
+	set keyword(str) {
+		this.#keyword = str.toLowerCase();
+	}
+
+	/** @param {string} */
+	get keyword() {
+		return this.#keyword;
+	}
+
+	/** @param {number} */
+	set iterations(count) {
+		this.#iterations = count;
+	}
+
+	get iterations() {
+		return this.#iterations;
 	}
 
 	/**
@@ -77,7 +116,6 @@ export class Benchmark {
 	}
 
 	/**
-	 *
 	 * @param {number} optionNumber
 	 * @param {(keyword: string) => void} filterFunc
 	 */
@@ -92,8 +130,11 @@ export class Benchmark {
 
 		const executionTime = Math.round((endTime - startTime) * 100) / 100;
 
+		const opsPerSecond =
+			Math.round((this.#iterations / executionTime) * 1000) / 1000;
+
 		console.log(
-			`Temps d'exécution option ${optionNumber} : ${executionTime} millisecondes`
+			`Option ${optionNumber} : ${opsPerSecond} ops/s | ${executionTime} millisecondes`
 		);
 	}
 
@@ -105,36 +146,10 @@ export class Benchmark {
 		this.#bench(2, this.#filterOption2.bind(this));
 	}
 
-	/** @param {boolean} */
-	set option1(bool) {
-		this.#options["option1"] = bool;
-	}
-
-	get option1() {
-		return this.#options["option1"];
-	}
-
-	/** @param {boolean} */
-	set option2(bool) {
-		this.#options["option2"] = bool;
-	}
-
-	get option2() {
-		return this.#options["option2"];
-	}
-
-	/** @param {string} */
-	set keyword(str) {
-		this.#keyword = str.toLowerCase();
-	}
-
-	/** @param {string} */
-	get keyword() {
-		return this.#keyword;
-	}
-
 	render() {
+		console.group("Benchmark");
 		this.#options["option1"] && this.#option1();
 		this.#options["option2"] && this.#option2();
+		console.groupEnd("Benchmark");
 	}
 }
