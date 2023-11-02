@@ -116,8 +116,6 @@ export class RecipeCard {
 	 * @returns {this}
 	 */
 	setHidden(hidden) {
-		if (!this.#card && this.#card.hidden !== hidden) return;
-
 		this.#card.hidden = hidden;
 		this.#card.setAttribute("aria-hidden", hidden ? "true" : "false");
 

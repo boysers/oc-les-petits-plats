@@ -165,11 +165,10 @@ export class TagMenu {
 	 * @returns {void}
 	 */
 	#initTagCardEvent(card, index, tagList, tagListActive) {
+		const tagname = this.#tags[index];
 		let active = false;
 
 		const cardEl = card.create();
-		const tagname = this.#tags[index];
-
 		tagList.appendChild(cardEl);
 
 		const closeEl = new CreateElement()
@@ -180,8 +179,6 @@ export class TagMenu {
 			.addChildren(capitalizeFirstLetter(tagname), closeEl)
 			.addClasses("active-tag")
 			.create("p");
-
-		// ----------------------------
 
 		const labelName = new CreateElement()
 			.addChildren(capitalizeFirstLetter(tagname))
@@ -197,6 +194,20 @@ export class TagMenu {
 			.addClasses("active-card")
 			.create("div");
 
+		const handleClose = () => {
+			if (!active) return;
+
+			this.#activeTags.delete(tagname);
+			tagActive.remove();
+			label.remove();
+
+			this.#filterTagCards();
+
+			active = false;
+
+			this.#updateActiveTags();
+		};
+
 		labelCloseBtn.addEventListener("mouseenter", () => {
 			labelCloseBtn.classList.remove("fa-xmark");
 			labelCloseBtn.classList.add("fa-circle-xmark");
@@ -207,33 +218,8 @@ export class TagMenu {
 			labelCloseBtn.classList.remove("fa-circle-xmark");
 		});
 
-		labelCloseBtn.addEventListener("click", () => {
-			if (!active) return;
-
-			this.#activeTags.delete(tagname);
-			tagActive.remove();
-			label.remove();
-
-			this.#filterTagCards();
-
-			active = false;
-
-			this.#updateActiveTags();
-		});
-
-		closeEl.addEventListener("click", () => {
-			if (!active) return;
-
-			this.#activeTags.delete(tagname);
-			tagActive.remove();
-			label.remove();
-
-			this.#filterTagCards();
-
-			active = false;
-
-			this.#updateActiveTags();
-		});
+		labelCloseBtn.addEventListener("click", handleClose);
+		closeEl.addEventListener("click", handleClose);
 
 		cardEl.addEventListener("click", () => {
 			if (active) return;
