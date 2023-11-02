@@ -103,21 +103,39 @@ export class RecipesFilter {
 
 	/**
 	 * @param {string} keyword
-	 * @returns {Array<import('../types').TRecipe>}
+	 * @returns {Array<import('../models/Recipe').Recipe>}
 	 */
-	filterOption2(keyword) {
+	filterOption1(keyword) {
 		if (keyword.length < MIN_KEYWORD_LENGTH) {
 			return this.#recipes;
 		}
 
-		const filteredRecipes = this.#recipes.filter(
-			({ name, description, ingredients }) =>
-				name.toLowerCase().includes(keyword) ||
-				description.toLowerCase().includes(keyword) ||
-				ingredients.some(({ ingredient }) =>
-					ingredient.includes(keyword)
-				)
-		);
+		const recipesLength = this.#recipes.length;
+
+		const filteredRecipes = [];
+		let filteredIndex = 0;
+
+		for (let recipeIndex = 0; recipeIndex < recipesLength; recipeIndex++) {
+			const recipe = this.#recipes[recipeIndex];
+
+			if (
+				recipe.name.toLowerCase().includes(keyword) ||
+				recipe.description.toLowerCase().includes(keyword)
+			) {
+				filteredRecipes[filteredIndex++] = recipe;
+				continue;
+			}
+
+			const ingredientsLength = recipe.ingredients.length;
+			for (let index = 0; index < ingredientsLength; index++) {
+				const ingredient = recipe.ingredients[index];
+
+				if (ingredient.name.toLowerCase().includes(keyword)) {
+					filteredRecipes[filteredIndex++] = recipe;
+					break;
+				}
+			}
+		}
 
 		return filteredRecipes;
 	}

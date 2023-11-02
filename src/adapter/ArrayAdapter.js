@@ -1,10 +1,10 @@
 "use strict";
 
-import { ArrayObject } from "../array";
+import { ArrayNativeLoop } from "../array";
 
 /**
  * @template T
  * @class ArrayAdapter
- * @extends {ArrayObject<T>}
+ * @extends {ArrayNativeLoop<T>}
  */
-export default class ArrayAdapter extends ArrayObject {}
+export default class ArrayAdapter extends ArrayNativeLoop {}
