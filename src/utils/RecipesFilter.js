@@ -103,7 +103,7 @@ export class RecipesFilter {
 
 	/**
 	 * @param {string} keyword
-	 * @returns {Array<import('./types').TRecipe>}
+	 * @returns {Array<import('../types').TRecipe>}
 	 */
 	filterOption2(keyword) {
 		if (keyword.length < MIN_KEYWORD_LENGTH) {
