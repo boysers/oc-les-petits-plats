@@ -20,7 +20,7 @@ export class RecipesFilter {
 	 * @returns {boolean}
 	 */
 	#areItemsMatch(itemSet, itemsToCheck) {
-		return itemsToCheck.some((item) => itemSet.has(item));
+		return itemsToCheck.every((item) => itemSet.has(item));
 	}
 
 	/**
